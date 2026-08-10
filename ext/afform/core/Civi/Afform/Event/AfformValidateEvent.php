@@ -10,9 +10,9 @@ class AfformValidateEvent extends AfformBaseEvent {
   /**
    * @var array
    */
-  private array $errors = [];
+  private $errors = [];
 
-  private array $entityFieldDefn = [];
+  private $entityFieldDefn = [];
 
   /**
    * AfformValidateEvent constructor.
@@ -26,44 +26,13 @@ class AfformValidateEvent extends AfformBaseEvent {
   }
 
   /**
-   * Alias for addError()
-   *
    * @param string $errorMsg
-   *
-   * @return void
-   *
-   * @deprecated
    */
-  public function setError(string $errorMsg): void {
-    \CRM_Core_Error::deprecatedFunctionWarning('addError');
+  public function setError(string $errorMsg) {
     $this->errors[] = $errorMsg;
   }
 
   /**
-   * Add an error
-   *
-   * @param string $errorMsg
-   *
-   * @return void
-   */
-  public function addError(string $errorMsg): void {
-    $this->errors[] = $errorMsg;
-  }
-
-  /**
-   * Replace all existing errors with the specified array
-   *
-   * @param array $errors
-   *
-   * @return void
-   */
-  public function setErrors(array $errors): void {
-    $this->errors = $errors;
-  }
-
-  /**
-   * Get all errors that have been set by other callers
-   *
    * @return array
    */
   public function getErrors(): array {

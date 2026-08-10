@@ -31,9 +31,6 @@ trait AfformSaveTrait {
       $item['created_id'] = \CRM_Core_Session::getLoggedInContactID();
     }
 
-    // Dispatch hook_civicrm_pre
-    \CRM_Utils_Hook::pre($orig ? 'edit' : 'create', 'Afform', NULL, $item);
-
     // FIXME validate all field data.
     $item = _afform_fields_filter($item);
 
@@ -73,20 +70,12 @@ trait AfformSaveTrait {
     }
 
     if (Utils::shouldClearMenuCache($item, $orig ?? [])) {
-      \CRM_Core_Menu::clear();
+      \CRM_Core_Menu::store();
     }
 
     $item['module_name'] = _afform_angular_module_name($item['name'], 'camel');
     $item['directive_name'] = _afform_angular_module_name($item['name'], 'dash');
-
-    $result = $meta + $item;
-
-    // Dispatch hook_civicrm_post
-    // param $object is passed by reference
-    $nullValue = NULL;
-    \CRM_Utils_Hook::post($orig ? 'edit' : 'create', 'Afform', 0, $nullValue, $result);
-
-    return $result;
+    return $meta + $item;
   }
 
   /**

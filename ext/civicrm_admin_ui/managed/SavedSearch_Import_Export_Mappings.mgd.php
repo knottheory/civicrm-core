@@ -70,25 +70,25 @@ return [
             [
               'type' => 'field',
               'key' => 'id',
-              'label' => 'ID',
+              'label' => E::ts('ID'),
               'sortable' => TRUE,
             ],
             [
               'type' => 'field',
               'key' => 'name',
-              'label' => 'Name',
+              'label' => E::ts('Name'),
               'sortable' => TRUE,
             ],
             [
               'type' => 'field',
               'key' => 'mapping_type_id:label',
-              'label' => 'Mapping Type',
+              'label' => E::ts('Mapping Type'),
               'sortable' => TRUE,
             ],
             [
               'type' => 'field',
               'key' => 'description',
-              'label' => 'Description',
+              'label' => E::ts('Description'),
               'sortable' => TRUE,
             ],
             [
@@ -100,7 +100,7 @@ return [
                 [
                   'path' => '',
                   'icon' => 'fa-pencil',
-                  'text' => 'Edit',
+                  'text' => E::ts('Edit'),
                   'style' => 'default',
                   'condition' => [],
                   'task' => '',
@@ -115,7 +115,7 @@ return [
                   'join' => '',
                   'target' => 'crm-popup',
                   'icon' => 'fa-trash',
-                  'text' => 'Delete',
+                  'text' => E::ts('Delete'),
                   'style' => 'danger',
                   'path' => '',
                   'action' => '',

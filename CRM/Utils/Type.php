@@ -382,7 +382,6 @@ class CRM_Utils_Type {
       'Timestamp',
       'ContactReference',
       'EntityReference',
-      'Currency',
       'MysqlColumnNameOrAlias',
       'MysqlOrderByDirection',
       'MysqlOrderBy',
@@ -419,7 +418,6 @@ class CRM_Utils_Type {
       case 'String':
       case 'Link':
       case 'Memo':
-      case 'Currency':
         return $data;
 
       case 'Date':

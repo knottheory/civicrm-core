@@ -12,9 +12,19 @@
 
 namespace Civi\Api4\Action\Mailing;
 
-use Civi\Api4\Generic\AbstractScheduledJob;
+use Civi\Api4\Generic\AbstractAction;
 
-class ProcessQueue extends AbstractScheduledJob {
+class ProcessQueue extends AbstractAction {
+
+  /**
+   * @var bool
+   */
+  protected $runInNonProductionEnvironment = TRUE;
+
+  /**
+   * @var null
+   */
+  protected $language = NULL;
 
   public function _run(\Civi\Api4\Generic\Result $result) {
     $queue = \Civi::queue('civicrm.mailing.event.queue', [

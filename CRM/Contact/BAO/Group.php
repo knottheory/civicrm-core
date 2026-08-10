@@ -931,14 +931,12 @@ WHERE  id IN $groupIdString
       if ($dao->parents) {
         $parentArray = explode(',', $dao->parents);
         $parent = self::filterActiveGroups($parentArray);
-        if ($parent) {
-          $tree[$parent][] = [
-            'id' => $dao->id,
-            'title' => empty($dao->saved_search_id) ? $title : '* ' . $title,
-            'visibility' => $dao->visibility,
-            'description' => $description,
-          ];
-        }
+        $tree[$parent][] = [
+          'id' => $dao->id,
+          'title' => empty($dao->saved_search_id) ? $title : '* ' . $title,
+          'visibility' => $dao->visibility,
+          'description' => $description,
+        ];
       }
       else {
         $roots[] = [

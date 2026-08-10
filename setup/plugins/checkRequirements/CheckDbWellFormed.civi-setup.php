@@ -25,7 +25,7 @@ if (!defined('CIVI_SETUP')) {
 
       $keys = array_keys($db);
       sort($keys);
-      $expectedKeys = ['server', 'username', 'password', 'database'];
+      $expectedKeys = array('server', 'username', 'password', 'database');
       sort($expectedKeys);
       if ($keys !== $expectedKeys) {
         // if it failed it might be because of the optional ssl parameters

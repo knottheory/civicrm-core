@@ -146,7 +146,6 @@ class CRM_Core_BAO_CustomValueTable {
               break;
 
             case 'RichTextEditor':
-            case 'Currency':
               $type = 'String';
               break;
 
@@ -300,7 +299,7 @@ class CRM_Core_BAO_CustomValueTable {
    *   the mysql data store placeholder
    */
   public static function fieldToSQLType(string $type, $maxLength = NULL, bool $isSerialized = FALSE, ?string $fkEntity = NULL) {
-    if ($fkEntity && $fkEntity !== 'Currency') {
+    if ($fkEntity) {
       $type = self::getDataTypeForPrimaryKey($fkEntity);
     }
 
@@ -311,10 +310,6 @@ class CRM_Core_BAO_CustomValueTable {
     switch ($type) {
       case 'String':
         $maxLength = $maxLength ?: 255;
-        return "varchar($maxLength)";
-
-      case 'Currency':
-        $maxLength = $maxLength ?: 3;
         return "varchar($maxLength)";
 
       case 'Link':

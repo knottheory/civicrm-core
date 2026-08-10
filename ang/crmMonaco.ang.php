@@ -1,5 +1,5 @@
 <?php
-return [
+return array(
   'ext' => 'civicrm',
   'js' => [
     'bower_components/monaco-editor/min/vs/loader.js',
@@ -15,4 +15,4 @@ return [
   'exports' => [
     'crm-monaco' => 'A',
   ],
-];
+);

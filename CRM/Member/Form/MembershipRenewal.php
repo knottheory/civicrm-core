@@ -139,7 +139,7 @@ class CRM_Member_Form_MembershipRenewal extends CRM_Member_Form {
    */
   public function preProcess() {
 
-    // This string makes up part of the css class names, differentiating them (not sure why) from the membership fields.
+    // This string makes up part of the class names, differentiating them (not sure why) from the membership fields.
     $this->assign('formClass', 'membershiprenew');
     parent::preProcess();
 
@@ -466,6 +466,7 @@ class CRM_Member_Form_MembershipRenewal extends CRM_Member_Form {
   public function postProcess(): void {
     // get the submitted form values.
     $this->_params = $this->controller->exportValues($this->_name);
+    $this->assignBillingName();
 
     try {
       $this->submit();
@@ -500,12 +501,16 @@ class CRM_Member_Form_MembershipRenewal extends CRM_Member_Form {
       $this->_params['financial_type_id'] = CRM_Core_DAO::getFieldValue('CRM_Member_DAO_MembershipType', $this->_memType, 'financial_type_id');
     }
     $contributionRecurID = NULL;
+    $this->assign('membershipID', $this->_id);
+    $this->assign('contactID', $this->_contactID);
+    $this->assign('module', 'Membership');
     $this->assign('receiptType', 'membership renewal');
     $this->_params['currencyID'] = CRM_Core_Config::singleton()->defaultCurrency;
     $this->_params['invoice_id'] = $this->getInvoiceID();
 
-    if ($this->getSubmittedValue('send_receipt')) {
+    if (!empty($this->_params['send_receipt'])) {
       $this->_params['receipt_date'] = $now;
+      $this->assign('receipt_date', CRM_Utils_Date::mysqlToIso($this->_params['receipt_date']));
     }
     else {
       $this->_params['receipt_date'] = NULL;
@@ -522,7 +527,7 @@ class CRM_Member_Form_MembershipRenewal extends CRM_Member_Form {
       // all the payment processors expect the name and address to be in the passed params
       // so we copy stuff over to first_name etc.
       $paymentParams = $this->_params;
-      if ($this->getSubmittedValue('send_receipt')) {
+      if (!empty($this->_params['send_receipt'])) {
         $paymentParams['email'] = $this->_contributorEmail;
       }
 
@@ -538,7 +543,7 @@ class CRM_Member_Form_MembershipRenewal extends CRM_Member_Form {
           'contribution_status_id' => 'Pending',
           'payment_processor_id' => $this->_params['payment_processor_id'],
           'financial_type_id' => $this->_params['financial_type_id'],
-          'is_email_receipt' => (bool) $this->getSubmittedValue('send_receipt'),
+          'is_email_receipt' => !empty($this->_params['send_receipt']),
           'payment_instrument_id' => $this->_params['payment_instrument_id'],
           'invoice_id' => $this->getInvoiceID(),
         ], $paymentParams['membership_type_id'][1]);
@@ -565,7 +570,7 @@ class CRM_Member_Form_MembershipRenewal extends CRM_Member_Form {
     // chk for renewal for multiple terms CRM-8750
     $numRenewTerms = 1;
     if (is_numeric($this->_params['num_terms'] ?? '')) {
-      $numRenewTerms = (int) $this->_params['num_terms'];
+      $numRenewTerms = $this->_params['num_terms'];
     }
 
     $pending = ($this->_params['contribution_status_id'] == CRM_Core_PseudoConstant::getKey('CRM_Contribute_BAO_Contribution', 'contribution_status_id', 'Pending'));
@@ -609,16 +614,8 @@ class CRM_Member_Form_MembershipRenewal extends CRM_Member_Form {
 
       //create line items
       $this->_params = $this->setPriceSetParameters($this->_params);
+
       $this->_params = array_merge($this->_params, $this->getOrderParams());
-      // numTerms comes in from the form above. But lineitem value gets set to default from PriceField
-      // We need the lineitem to include the form value for membership renewal to work properly via lineitems.
-      foreach ($this->_params['lineItems'] as &$priceSetLineItem) {
-        foreach ($priceSetLineItem as &$lineItem) {
-          if ($this->_memType === $lineItem['membership_type_id']) {
-            $lineItem['membership_num_terms'] = $numRenewTerms;
-          }
-        }
-      }
 
       //assign contribution contact id to the field expected by recordMembershipContribution
       if ($this->_contributorContactID != $this->_contactID) {
@@ -631,6 +628,10 @@ class CRM_Member_Form_MembershipRenewal extends CRM_Member_Form {
         }
       }
       $this->_params['contact_id'] = $this->_contactID;
+      //recordMembershipContribution receives params as a reference & adds one variable. This is
+      // not a great pattern & ideally it would not receive as a reference. We assign our params as a
+      // temporary variable to avoid e-notice & to make it clear to future refactorer that
+      // this function is NOT reliant on that var being set
       $temporaryParams = array_merge($this->_params, [
         'membership_id' => $membershipParams['id'],
         'contribution_recur_id' => $contributionRecurID,
@@ -638,7 +639,7 @@ class CRM_Member_Form_MembershipRenewal extends CRM_Member_Form {
       $this->setContributionID(CRM_Member_BAO_Membership::recordMembershipContribution($temporaryParams)->id);
     }
 
-    if ($this->getSubmittedValue('send_receipt')) {
+    if (!empty($this->_params['send_receipt'])) {
       $this->sendReceipt();
     }
   }
@@ -671,6 +672,7 @@ class CRM_Member_Form_MembershipRenewal extends CRM_Member_Form {
     }
     CRM_Core_BAO_UFGroup::getValues($this->_contactID, $customFields, $customValues, FALSE, $members);
 
+    $this->assign('formValues', $this->_params);
     $this->assign('customValues', $customValues);
 
     if ($this->_mode) {

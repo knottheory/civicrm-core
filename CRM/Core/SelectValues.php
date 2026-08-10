@@ -1187,10 +1187,6 @@ class CRM_Core_SelectValues {
         'label' => ts('Last Name'),
       ],
       [
-        'key' => 'legal_name',
-        'label' => ts('Legal Name'),
-      ],
-      [
         'key' => 'Email.email',
         'label' => ts('Email'),
         'adv_search_legacy' => 'email',
@@ -1369,16 +1365,6 @@ class CRM_Core_SelectValues {
       'icon' => 'icon',
       'color' => 'color',
       'grouping' => 'grouping',
-    ];
-  }
-
-  /**
-   * TODO: Support more ops like 'INTERSECT' & 'EXCEPT' when moving to MySQL 8.
-   */
-  public static function setOperations(): array {
-    return [
-      'UNION ALL' => ts('Union All'),
-      'UNION DISTINCT' => ts('Union Distinct'),
     ];
   }
 

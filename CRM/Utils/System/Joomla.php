@@ -111,10 +111,17 @@ class CRM_Utils_System_Joomla extends CRM_Utils_System_Base {
     $ufName = CRM_Utils_Type::escape($ufName, 'String');
 
     $values = [];
-    $values['email'] = $ufName;
+    if (version_compare(JVERSION, '4.0', 'lt')) {
+      $user = JUser::getInstance($ufID);
+    }
+    else {
+      $factoryClassName = $this->factoryClassName();
+      $user = $factoryClassName::getContainer()->get(\Joomla\CMS\User\UserFactoryInterface::class)->loadUserById($ufID);
+    }
 
-    $user = $this->getJoomlaUserById($ufID);
+    $values['email'] = $ufName;
     $user->bind($values);
+
     $user->save();
   }
 
@@ -537,7 +544,7 @@ class CRM_Utils_System_Joomla extends CRM_Utils_System_Base {
    * @return bool
    */
   public function loadUser($username, $password = NULL) {
-    $factoryClassName = $this->factoryClassName();
+    $factoryClassName = self::factoryClassName();
     if (version_compare(JVERSION, '4.0', 'lt')) {
       $uid = JUserHelper::getUserId($username);
     }
@@ -566,7 +573,12 @@ class CRM_Utils_System_Joomla extends CRM_Utils_System_Base {
     }
 
     // Save details in Joomla session
-    $user = $this->getJoomlaUserById($uid);
+    if (version_compare(JVERSION, '4.0.0', 'ge')) {
+      $user = $factoryClassName::getContainer()->get(\Joomla\CMS\User\UserFactoryInterface::class)->loadUserById($uid);
+    }
+    else {
+      $user = $factoryClassName::getUser($uid);
+    }
     $jsession = $factoryClassName::getApplication()->getSession();
     $jsession->set('user', $user);
 
@@ -632,8 +644,8 @@ class CRM_Utils_System_Joomla extends CRM_Utils_System_Base {
       $version = new JVersion();
       return $version->getShortVersion();
     }
-    elseif (class_exists('\Joomla\CMS\Version')) {
-      $version = new \Joomla\CMS\Version();
+    elseif (class_exists('Version')) {
+      $version = new Version();
       return $version->getShortVersion();
     }
     else {
@@ -641,11 +653,6 @@ class CRM_Utils_System_Joomla extends CRM_Utils_System_Base {
     }
   }
 
-  /**
-   * Return and define the current Joomla! version (JVERSION) if not already defined.
-   * @param string $joomlaBase Base path to Joomla! installation.
-   * @return string
-   */
   public function getJVersion($joomlaBase) {
     // Files may be in different places depending on Joomla version
     if (!defined('JVERSION')) {
@@ -656,53 +663,15 @@ class CRM_Utils_System_Joomla extends CRM_Utils_System_Base {
         $versionPhp = $joomlaBase . '/libraries/cms/version/version.php';
       }
       require $versionPhp;
-      define('JVERSION', $this->getVersion());
+      $class = 'jVersion';
+      if (!class_exists('jVersion')) {
+        $class = 'Version';
+      }
+      $jversion = new $class();
+      define('JVERSION', $jversion->getShortVersion());
     }
-    return JVERSION;
   }
 
-  /**
-   * Get the current logged-in Joomla! user, or guest (id = 0) if not logged in.
-   * @return Joomla! User object.
-   */
-  public function getCurrentJoomlaUser() {
-    // If logged in, the Joomla! method returns the current User object
-    // If not logged in, it may return NULL or the guest User object (id = 0, guest = 1)
-    $factoryClassName = $this->factoryClassName();
-    if (version_compare(JVERSION, '4.0', 'ge')) {
-      $user = $factoryClassName::getApplication()->getIdentity();
-    }
-    else {
-      $user = $factoryClassName::getUser();
-    }
-    // Fall back to guest user if we got NULL (see notes above)
-    return $user ?? $this->getJoomlaUserById(0);
-  }
-
-  /**
-   * Get a Joomla! user by id.
-   * @param int $userId The user id (0 = guest).
-   * @return Joomla! User object.
-   */
-  public function getJoomlaUserById(int $userId) {
-    // The Joomla! method only accepts int or int-coercible $userId (it will not accept NULL)
-    // If $userId == 0, it returns the guest User object (id = 0, guest = 1)
-    // If $userId != 0 and exists, it returns the registered User object (id = $userId, guest = 0)
-    // If $userId != 0 and does not exist, it returns an invalid User object (id = NULL, guest = 1)
-    $factoryClassName = $this->factoryClassName();
-    if (version_compare(JVERSION, '4.0', 'ge')) {
-      $user = $factoryClassName::getContainer()->get(\Joomla\CMS\User\UserFactoryInterface::class)->loadUserById($userId);
-    }
-    else {
-      $user = $factoryClassName::getUser($userId);
-    }
-    return $user;
-  }
-
-  /**
-   * Get the Joomla! document.
-   * @return Document object.
-   */
   protected function getJoomlaDocument() {
     $factoryClassName = $this->factoryClassName();
     $document = $factoryClassName::getApplication()->getDocument();
@@ -754,8 +723,14 @@ class CRM_Utils_System_Joomla extends CRM_Utils_System_Base {
    * @inheritDoc
    */
   public function isUserLoggedIn() {
-    $user = $this->getCurrentJoomlaUser();
-    return (empty($user->id) || !empty($user->guest)) ? FALSE : TRUE;
+    $factoryClassName = $this->factoryClassName();
+    if (version_compare(JVERSION, '4.0', 'lt')) {
+      $user = $factoryClassName::getUser();
+    }
+    else {
+      $user = $factoryClassName::getApplication()->getIdentity();
+    }
+    return isset($user) && !$user->guest;
   }
 
   /**
@@ -785,15 +760,27 @@ class CRM_Utils_System_Joomla extends CRM_Utils_System_Base {
    * @inheritDoc
    */
   public function getLoggedInUfID() {
-    $user = $this->getCurrentJoomlaUser();
-    return $this->getUserIDFromUserObject($user);
+    $factoryClassName = $this->factoryClassName();
+    if (version_compare(JVERSION, '4.0', 'lt')) {
+      $user = $factoryClassName::getUser();
+    }
+    else {
+      $user = $factoryClassName::getApplication()->getIdentity();
+    }
+    return (empty($user) || $user->guest) ? NULL : $user->id;
   }
 
   /**
    * @inheritDoc
    */
   public function getLoggedInUniqueIdentifier() {
-    $user = $this->getCurrentJoomlaUser();
+    $factoryClassName = $this->factoryClassName();
+    if (version_compare(JVERSION, '4.0', 'lt')) {
+      $user = $factoryClassName::getUser();
+    }
+    else {
+      $user = $factoryClassName::getApplication()->getIdentity();
+    }
     return $this->getUniqueIdentifierFromUserObject($user);
   }
 
@@ -802,7 +789,13 @@ class CRM_Utils_System_Joomla extends CRM_Utils_System_Base {
    */
   public function getUser($contactID) {
     $user_details = parent::getUser($contactID);
-    $user = $this->getJoomlaUserById($user_details['id']);
+    $factoryClassName = $this->factoryClassName();
+    if (version_compare(JVERSION, '4.0.0', 'ge')) {
+      $user = $factoryClassName::getContainer()->get(\Joomla\CMS\User\UserFactoryInterface::class)->loadUserById($user_details['id']);
+    }
+    else {
+      $user = $factoryClassName::getUser($user_details['id']);
+    }
     $user_details['name'] = $user->name;
     return $user_details;
   }
@@ -811,20 +804,14 @@ class CRM_Utils_System_Joomla extends CRM_Utils_System_Base {
    * @inheritDoc
    */
   public function getUserIDFromUserObject($user) {
-    // See notes in getJoomlaUserById() about possible combinations of $user->guest and $user->id
-    if (!empty($user->guest)) {
-      return 0;
-    }
-    else {
-      return $user->id ?? NULL;
-    }
+    return !empty($user->id) ? $user->id : NULL;
   }
 
   /**
    * @inheritDoc
    */
   public function getUniqueIdentifierFromUserObject($user) {
-    return (empty($user->email) || !empty($user->guest)) ? NULL : $user->email;
+    return (empty($user) || $user->guest) ? NULL : $user->email;
   }
 
   /**
@@ -970,25 +957,25 @@ class CRM_Utils_System_Joomla extends CRM_Utils_System_Base {
    */
   public function getUserRecordUrl($contactID) {
     $uid = CRM_Core_BAO_UFMatch::getUFId($contactID);
+    $factoryClassName = $this->factoryClassName();
     // if logged in user has user edit access, then allow link to other users joomla profile
     // always allow access to the user's own profile
     if (
-        $this->getCurrentJoomlaUser()->authorise('core.edit', 'com_users') ||
+        $factoryClassName::getApplication()->getIdentity()?->authorise('core.edit', 'com_users') ||
         (CRM_Core_Session::singleton()->get('userID') == $contactID)
     ) {
       return CRM_Core_Config::singleton()->userFrameworkBaseURL . "index.php?option=com_users&view=user&task=user.edit&id=" . $uid;
     }
-    return NULL;
   }
 
   /**
    * @inheritDoc
    */
   public function checkPermissionAddUser() {
-    if ($this->getCurrentJoomlaUser()->authorise('core.create', 'com_users')) {
+    $factoryClassName = $this->factoryClassName();
+    if ($factoryClassName::getApplication()->getIdentity()?->authorise('core.create', 'com_users')) {
       return TRUE;
     }
-    return FALSE;
   }
 
   /**
@@ -1247,15 +1234,6 @@ class CRM_Utils_System_Joomla extends CRM_Utils_System_Base {
     $app->createExtensionNamespaceMap();
     // Set the application as global app
     \Joomla\CMS\Factory::$application = $app;
-  }
-
-  public function getRoleNames() {
-    $userGroups = \Joomla\CMS\Helper\UserGroupsHelper::getInstance()->loadAll()->getAll();
-    $roles = [];
-    foreach ($userGroups as $userGroup) {
-      $roles[$userGroup->title] = $userGroup->title;
-    }
-    return $roles;
   }
 
 }

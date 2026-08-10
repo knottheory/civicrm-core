@@ -16,7 +16,7 @@ $links = [
     'join' => '',
     'target' => 'crm-popup',
     'icon' => 'fa-external-link',
-    'text' => 'View Relationship',
+    'text' => ts('View Relationship'),
     'style' => 'default',
     'path' => '',
     'task' => '',
@@ -28,7 +28,7 @@ $links = [
     'join' => '',
     'target' => 'crm-popup',
     'icon' => 'fa-pencil',
-    'text' => 'Update Relationship',
+    'text' => ts('Update Relationship'),
     'style' => 'default',
     'path' => '',
     'task' => '',
@@ -40,7 +40,7 @@ $links = [
     'join' => '',
     'target' => 'crm-popup',
     'icon' => 'fa-toggle-off',
-    'text' => 'Disable Relationship',
+    'text' => ts('Disable Relationship'),
     'style' => 'default',
     'path' => '',
     'action' => '',
@@ -52,7 +52,7 @@ $links = [
     'join' => '',
     'target' => 'crm-popup',
     'icon' => 'fa-trash',
-    'text' => 'Delete Relationship',
+    'text' => ts('Delete Relationship'),
     'style' => 'danger',
     'path' => '',
     'task' => '',
@@ -143,7 +143,7 @@ return [
             [
               'type' => 'field',
               'key' => 'near_relation:label',
-              'label' => 'Relationship',
+              'label' => ts('Relationship'),
               'sortable' => TRUE,
               'icons' => [
                 [
@@ -155,7 +155,7 @@ return [
             [
               'type' => 'field',
               'key' => 'RelationshipCache_Contact_far_contact_id_01.display_name',
-              'label' => 'With',
+              'label' => ts('With'),
               'sortable' => TRUE,
               'icons' => [
                 [
@@ -178,31 +178,31 @@ return [
                 'join' => 'RelationshipCache_Contact_far_contact_id_01',
                 'target' => '',
               ],
-              'title' => 'View Related Contact',
+              'title' => ts('View Related Contact'),
             ],
             [
               'type' => 'field',
               'key' => 'start_date',
-              'label' => 'Dates',
+              'label' => ts('Dates'),
               'sortable' => TRUE,
               'rewrite' => '[start_date] - [end_date]',
             ],
             [
               'type' => 'field',
               'key' => 'RelationshipCache_Contact_far_contact_id_01.address_primary.city',
-              'label' => 'City',
+              'label' => ts('City'),
               'sortable' => TRUE,
             ],
             [
               'type' => 'field',
               'key' => 'RelationshipCache_Contact_far_contact_id_01.address_primary.state_province_id:label',
-              'label' => 'State/Prov',
+              'label' => ts('State/Prov'),
               'sortable' => TRUE,
             ],
             [
               'type' => 'field',
               'key' => 'RelationshipCache_Contact_far_contact_id_01.email_primary.email',
-              'label' => 'Email',
+              'label' => ts('Email'),
               'sortable' => TRUE,
               'icons' => [
                 [
@@ -219,7 +219,7 @@ return [
             [
               'type' => 'field',
               'key' => 'RelationshipCache_Contact_far_contact_id_01.phone_primary.phone',
-              'label' => 'Phone',
+              'label' => ts('Phone'),
               'sortable' => TRUE,
               'icons' => [
                 [
@@ -240,7 +240,7 @@ return [
               'icon' => 'fa-bars',
               'links' => $links,
               'type' => 'menu',
-              'label' => 'Actions',
+              'label' => ts('Actions'),
               'label_hidden' => TRUE,
               'alignment' => 'text-right',
             ],
@@ -254,7 +254,7 @@ return [
             [
               'action' => 'add',
               'entity' => 'Relationship',
-              'text' => 'Add Relationship',
+              'text' => ts('Add Relationship'),
               'icon' => 'fa-plus',
               'style' => 'primary',
               'target' => 'crm-popup',
@@ -297,7 +297,7 @@ return [
             [
               'type' => 'field',
               'key' => 'near_relation:label',
-              'label' => 'Relationship',
+              'label' => ts('Relationship'),
               'sortable' => TRUE,
               'icons' => [
                 [
@@ -309,7 +309,7 @@ return [
             [
               'type' => 'field',
               'key' => 'RelationshipCache_Contact_far_contact_id_01.display_name',
-              'label' => 'With',
+              'label' => ts('With'),
               'sortable' => TRUE,
               'icons' => [
                 [
@@ -332,31 +332,31 @@ return [
                 'join' => 'RelationshipCache_Contact_far_contact_id_01',
                 'target' => '',
               ],
-              'title' => 'View Related Contact',
+              'title' => ts('View Related Contact'),
             ],
             [
               'type' => 'field',
               'key' => 'start_date',
-              'label' => 'Dates',
+              'label' => ts('Dates'),
               'sortable' => TRUE,
               'rewrite' => '[start_date] - [end_date]',
             ],
             [
               'type' => 'field',
               'key' => 'RelationshipCache_Contact_far_contact_id_01.address_primary.city',
-              'label' => 'City',
+              'label' => ts('City'),
               'sortable' => TRUE,
             ],
             [
               'type' => 'field',
               'key' => 'RelationshipCache_Contact_far_contact_id_01.address_primary.state_province_id:label',
-              'label' => 'State/Prov',
+              'label' => ts('State/Prov'),
               'sortable' => TRUE,
             ],
             [
               'type' => 'field',
               'key' => 'RelationshipCache_Contact_far_contact_id_01.email_primary.email',
-              'label' => 'Email',
+              'label' => ts('Email'),
               'sortable' => TRUE,
               'icons' => [
                 [
@@ -373,7 +373,7 @@ return [
             [
               'type' => 'field',
               'key' => 'RelationshipCache_Contact_far_contact_id_01.phone_primary.phone',
-              'label' => 'Phone',
+              'label' => ts('Phone'),
               'sortable' => TRUE,
               'icons' => [
                 [
@@ -392,7 +392,7 @@ return [
               'style' => 'default',
               'size' => 'btn-xs',
               'icon' => 'fa-bars',
-              'label' => 'Actions',
+              'label' => ts('Actions'),
               'label_hidden' => TRUE,
               'links' => [
                 [
@@ -401,7 +401,7 @@ return [
                   'join' => '',
                   'target' => 'crm-popup',
                   'icon' => 'fa-external-link',
-                  'text' => 'View Relationship',
+                  'text' => ts('View Relationship'),
                   'style' => 'default',
                   'path' => '',
                   'task' => '',
@@ -413,7 +413,7 @@ return [
                   'join' => '',
                   'target' => 'crm-popup',
                   'icon' => 'fa-pencil',
-                  'text' => 'Update Relationship',
+                  'text' => ts('Update Relationship'),
                   'style' => 'default',
                   'path' => '',
                   'task' => '',
@@ -425,7 +425,7 @@ return [
                   'join' => '',
                   'target' => 'crm-popup',
                   'icon' => 'fa-toggle-on',
-                  'text' => 'Enable Relationship',
+                  'text' => ts('Enable Relationship'),
                   'style' => 'default',
                   'path' => '',
                   'action' => '',
@@ -437,7 +437,7 @@ return [
                   'join' => '',
                   'target' => 'crm-popup',
                   'icon' => 'fa-trash',
-                  'text' => 'Delete Relationship',
+                  'text' => ts('Delete Relationship'),
                   'style' => 'danger',
                   'path' => '',
                   'task' => '',

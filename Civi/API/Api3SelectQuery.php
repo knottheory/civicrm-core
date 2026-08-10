@@ -10,8 +10,6 @@
  */
 namespace Civi\API;
 
-require_once 'api/v3/Generic.php';
-
 /**
  */
 class Api3SelectQuery extends SelectQuery {
@@ -131,6 +129,7 @@ class Api3SelectQuery extends SelectQuery {
    * @inheritDoc
    */
   protected function getFields() {
+    require_once 'api/v3/Generic.php';
     // Call this function directly instead of using the api wrapper to force unique field names off
     $apiSpec = \civicrm_api3_generic_getfields([
       'entity' => $this->entity,

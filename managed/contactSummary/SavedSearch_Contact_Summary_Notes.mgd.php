@@ -84,39 +84,39 @@ return [
             [
               'type' => 'field',
               'key' => 'subject',
-              'label' => 'Subject',
+              'label' => ts('Subject'),
               'sortable' => TRUE,
               'editable' => TRUE,
             ],
             [
               'type' => 'field',
               'key' => 'note',
-              'label' => 'Note',
+              'label' => ts('Note'),
               'sortable' => TRUE,
               'show_linebreaks' => TRUE,
             ],
             [
               'type' => 'field',
               'key' => 'note_date',
-              'label' => 'Note Date',
+              'label' => ts('Note Date'),
               'sortable' => TRUE,
             ],
             [
               'type' => 'field',
               'key' => 'modified_date',
-              'label' => 'Modified',
+              'label' => ts('Modified'),
               'sortable' => TRUE,
             ],
             [
               'type' => 'field',
               'key' => 'contact_id.sort_name',
-              'label' => 'Created By',
+              'label' => ts('Created By'),
               'sortable' => TRUE,
             ],
             [
               'type' => 'field',
               'key' => 'GROUP_CONCAT_Note_EntityFile_File_01_file_name',
-              'label' => 'Attachments',
+              'label' => ts('Attachments'),
               'sortable' => TRUE,
               'link' => [
                 'path' => '[GROUP_CONCAT_Note_EntityFile_File_01_url]',
@@ -142,12 +142,12 @@ return [
             ],
             [
               'size' => 'btn-xs',
-              'label' => 'Actions',
+              'label' => ts('Actions'),
               'label_hidden' => TRUE,
               'links' => [
                 [
                   'icon' => 'fa-external-link',
-                  'text' => 'View',
+                  'text' => ts('View'),
                   'style' => 'default',
                   'condition' => [],
                   'task' => '',
@@ -158,7 +158,7 @@ return [
                 ],
                 [
                   'icon' => 'fa-pencil',
-                  'text' => 'Edit',
+                  'text' => ts('Edit'),
                   'style' => 'default',
                   'condition' => [],
                   'task' => '',
@@ -169,7 +169,7 @@ return [
                 ],
                 [
                   'icon' => 'fa-trash',
-                  'text' => 'Delete',
+                  'text' => ts('Delete'),
                   'style' => 'danger',
                   'condition' => [],
                   'task' => '',
@@ -182,7 +182,7 @@ return [
                 [
                   'path' => 'civicrm/note?reset=1&action=add&entity_table=civicrm_note&entity_id=[id]',
                   'icon' => 'fa-comment-medical',
-                  'text' => 'Comment',
+                  'text' => ts('Comment'),
                   'style' => 'success',
                   'condition' => [],
                   'task' => '',
@@ -204,7 +204,7 @@ return [
           'headerCount' => FALSE,
           'toolbar' => [
             [
-              'text' => 'Add Note',
+              'text' => ts('Add Note'),
               'icon' => 'fa-plus',
               'style' => 'primary',
               'entity' => 'Note',

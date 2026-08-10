@@ -52,26 +52,26 @@ namespace _CiviVersion_ {
      * Get the CMS root path and CMS name
      */
     public static function findCMSRootPath() {
-      $cmsPatterns = [
-        'Wordpress' => [
+      $cmsPatterns = array(
+        'Wordpress' => array(
           'wp-includes/version.php',
           // Future? 'vendor/civicrm/wordpress/civicrm.php' => 'wp',
-        ],
-        'Joomla' => [
+        ),
+        'Joomla' => array(
           'administrator/components/com_civicrm/civicrm/civicrm-version.php',
-        ],
-        'Drupal' => [
+        ),
+        'Drupal' => array(
           // D7
           'modules/system/system.module',
-        ],
-        'Drupal8' => [
+        ),
+        'Drupal8' => array(
           // D8
           'core/core.services.yml',
-        ],
-        'Backdrop' => [
+        ),
+        'Backdrop' => array(
           'core/modules/layout/layout.module',
-        ],
-      ];
+        ),
+      );
 
       $parts = explode('/', str_replace('\\', '/', self::getSearchDir()));
       while (!empty($parts)) {

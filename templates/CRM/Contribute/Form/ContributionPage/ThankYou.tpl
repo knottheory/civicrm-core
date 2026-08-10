@@ -27,8 +27,9 @@
        <td class="html-adjust">{$form.thankyou_footer.html}<br /></td>
     </tr>
     <tr class="crm-contribution-contributionpage-thankyou-form-block-is_email_receipt">
-       <td class="label">{help id="is_email_receipt"}</td>
-       <td class="html-adjust">{$form.is_email_receipt.html}{$form.is_email_receipt.label}</td>
+       <td class="label"></td>
+       <td class="html-adjust">{$form.is_email_receipt.html}{$form.is_email_receipt.label} {help id="is_email_receipt"}
+       </td>
     </tr>
     </table>
     <table id="receiptDetails" class="form-layout">

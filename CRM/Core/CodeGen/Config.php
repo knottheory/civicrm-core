@@ -77,6 +77,7 @@ class CRM_Core_CodeGen_Config extends CRM_Core_CodeGen_BaseTask {
     foreach ($candidates as $candidate) {
       if (file_exists($candidate)) {
         return $candidate;
+        break;
       }
     }
     return NULL;

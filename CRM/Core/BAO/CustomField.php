@@ -76,11 +76,6 @@ class CRM_Core_BAO_CustomField extends CRM_Core_DAO_CustomField implements \Civi
         'label' => ts('Country'),
       ],
       [
-        'id' => 'Currency',
-        'name' => 'Currency',
-        'label' => ts('Currency'),
-      ],
-      [
         'id' => 'File',
         'name' => 'File',
         'label' => ts('File'),
@@ -118,7 +113,6 @@ class CRM_Core_BAO_CustomField extends CRM_Core_DAO_CustomField implements \Civi
       'Country' => 'Integer',
       'File' => 'Integer',
       'Link' => 'String',
-      'Currency' => 'String',
       'ContactReference' => 'Integer',
       'EntityReference' => 'Integer',
     ];
@@ -126,7 +120,7 @@ class CRM_Core_BAO_CustomField extends CRM_Core_DAO_CustomField implements \Civi
     if ($dataType === 'Date' && !empty($customField['time_format'])) {
       $dataType = 'Timestamp';
     }
-    if (!empty($customField['fk_entity']) && $customField['data_type'] !== 'Currency') {
+    if (!empty($customField['fk_entity'])) {
       $dataType = CRM_Core_BAO_CustomValueTable::getDataTypeForPrimaryKey($customField['fk_entity']);
     }
 
@@ -152,7 +146,6 @@ class CRM_Core_BAO_CustomField extends CRM_Core_DAO_CustomField implements \Civi
       'StateProvince' => CRM_Utils_Type::T_INT,
       'File' => CRM_Utils_Type::T_STRING,
       'Link' => CRM_Utils_Type::T_STRING,
-      'Currency' => CRM_Utils_Type::T_STRING,
       'ContactReference' => CRM_Utils_Type::T_INT,
       'EntityReference' => CRM_Utils_Type::T_INT,
       'Country' => CRM_Utils_Type::T_INT,
@@ -1035,41 +1028,20 @@ class CRM_Core_BAO_CustomField extends CRM_Core_DAO_CustomField implements \Civi
    * array.
    *
    * @param string $attrString
-   *   The attributes as a string, e.g. `rows=3 cols=40` or `placeholder="Find sites"`.
+   *   The attributes as a string, e.g. `rows=3 cols=40`.
    *
    * @return array
    *   The attributes as an array, e.g. `['rows' => 3, 'cols' => 40]`.
    */
   public static function attributesFromString($attrString) {
     $attributes = [];
-    // Values may be quoted (single or double) to allow spaces, e.g. placeholder="Find sites".
-    preg_match_all('/([\w-]+)=("[^"]*"|\'[^\']*\'|\S*)/', (string) $attrString, $matches, PREG_SET_ORDER);
-    foreach ($matches as [, $key, $value]) {
-      $attributes[$key] = html_entity_decode(trim($value, '"\''));
+    foreach (explode(' ', $attrString) as $at) {
+      if (strpos($at, '=')) {
+        [$k, $v] = explode('=', $at);
+        $attributes[$k] = trim($v, ' "');
+      }
     }
     return $attributes;
-  }
-
-  /**
-   * Take an associative array of HTML element attributes and turn it into a string.
-   *
-   * Inverse of self::attributesFromString().
-   *
-   * @param array $attributes
-   *   The attributes as an array, e.g. `['rows' => 3, 'placeholder' => 'Find sites']`.
-   *
-   * @return string
-   *   The attributes as a string, e.g. `rows=3 placeholder="Find sites"`.
-   */
-  public static function attributesToString(array $attributes): string {
-    $parts = [];
-    foreach ($attributes as $key => $value) {
-      if ($value === NULL || $value === '') {
-        continue;
-      }
-      $parts[] = $key . '="' . htmlspecialchars((string) $value, ENT_QUOTES) . '"';
-    }
-    return implode(' ', $parts);
   }
 
   /**
@@ -1157,7 +1129,7 @@ class CRM_Core_BAO_CustomField extends CRM_Core_DAO_CustomField implements \Civi
    */
   private static function formatDisplayValue($value, $field, $entityId = NULL) {
 
-    if (self::isSerialized($field) && is_string($value)) {
+    if (self::isSerialized($field) && !is_array($value)) {
       // The autocomplete widget for selecting a default value uses a comma in-between values.
       if ($field['html_type'] === 'Autocomplete-Select' && str_contains($value, ',')) {
         $value = explode(',', $value);
@@ -2257,33 +2229,39 @@ WHERE  id IN ( %1, %2 )
     if (empty($fieldIDs)) {
       return;
     }
+    $fields = civicrm_api3('CustomField', 'get', ['id' => ['IN' => $fieldIDs], 'return' => ['custom_group_id.is_multiple', 'custom_group_id.table_name', 'column_name', 'data_type'], 'options' => ['limit' => 0]])['values'];
     $return = [];
     foreach ($fieldIDs as $fieldID) {
       $return[] = 'custom_' . $fieldID;
     }
     $oldContact = civicrm_api3('Contact', 'getsingle', ['id' => $oldContactID, 'return' => $return]);
+    $newContact = civicrm_api3('Contact', 'getsingle', ['id' => $newContactID, 'return' => $return]);
 
     // The moveAllBelongings function has functionality to move custom fields. It doesn't work very well...
     // @todo handle all fields here but more immediately Country since that is broken at the moment.
-    $customValues = [];
-    foreach ($fieldIDs as $fieldID) {
-      $field = CRM_Core_BAO_CustomField::getField($fieldID);
-      $isMultiple = !empty($field['custom_group']['is_multiple']);
+    $fieldTypesNotHandledInMergeAttempt = ['File'];
+    foreach ($fields as $field) {
+      $isMultiple = !empty($field['custom_group_id.is_multiple']);
       if ($field['data_type'] === 'File' && !$isMultiple) {
-        $fieldName = "custom_$fieldID";
-        $rowId = CRM_Core_DAO::singleValueQuery("SELECT id FROM %1 WHERE entity_id = %2", [
-          1 => [$field['custom_group']['table_name'], 'MysqlColumnNameOrAlias'],
-          2 => [$newContactID, 'Integer'],
-        ]);
-        if ($rowId) {
-          $fieldName .= '_' . $rowId;
+        if (!empty($oldContact['custom_' . $field['id']]) && !empty($newContact['custom_' . $field['id']])) {
+          CRM_Core_BAO_File::deleteFileReferences($oldContact['custom_' . $field['id']], $oldContactID, $field['id']);
         }
-        $customValues[$fieldName] = $oldContact["custom_$fieldID"] ?? NULL;
+        if (!empty($oldContact['custom_' . $field['id']])) {
+          CRM_Core_DAO::executeQuery("
+            UPDATE civicrm_entity_file
+            SET entity_id = $newContactID
+            WHERE file_id = {$oldContact['custom_' . $field['id']]}"
+          );
+        }
       }
-    }
-    if ($customValues) {
-      $customValues['entityID'] = $newContactID;
-      \CRM_Core_BAO_CustomValueTable::setValues($customValues);
+      if (in_array($field['data_type'], $fieldTypesNotHandledInMergeAttempt) && !$isMultiple) {
+        CRM_Core_DAO::executeQuery(
+          "INSERT INTO {$field['custom_group_id.table_name']} (entity_id, `{$field['column_name']}`)
+          VALUES ($newContactID, {$oldContact['custom_' . $field['id']]})
+          ON DUPLICATE KEY UPDATE
+          `{$field['column_name']}` = {$oldContact['custom_' . $field['id']]}
+        ");
+      }
     }
   }
 
@@ -2730,7 +2708,6 @@ WHERE      f.id IN ($ids)";
     $dataTypeToFK = [
       'ContactReference' => 'Contact',
       'File' => 'File',
-      'Currency' => 'Currency',
     ];
     return $field['fk_entity'] ?? $dataTypeToFK[$field['data_type']] ?? NULL;
   }
@@ -2797,11 +2774,6 @@ WHERE      f.id IN ($ids)";
         'labelColumn' => 'name',
       ];
     }
-    elseif ($field['data_type'] == 'Currency') {
-      $field['pseudoconstant'] = [
-        'optionGroupName' => 'currencies_enabled',
-      ];
-    }
   }
 
   /**
@@ -2844,14 +2816,13 @@ WHERE      f.id IN ($ids)";
       'StateProvince' => 'civicrm_state_province',
       'ContactReference' => 'civicrm_contact',
       'File' => 'civicrm_file',
-      'Currency' => 'civicrm_currency',
       'EntityReference' => CoreUtil::getInfoItem((string) $field->fk_entity, 'table_name'),
     ];
     if (isset($fkFields[$field->data_type])) {
       // Serialized fields store value-separated strings which are incompatible with FK constraints
       if (!$field->serialize) {
         $params['fk_table_name'] = $fkFields[$field->data_type];
-        $params['fk_field_name'] = $field->data_type === 'Currency' ? 'name' : 'id';
+        $params['fk_field_name'] = 'id';
         $params['fk_attributes'] = 'ON DELETE SET NULL';
       }
     }
@@ -2881,9 +2852,6 @@ WHERE      f.id IN ($ids)";
       // This will hold the list of options in format key => label
       $options = [];
 
-      if ($dataType === 'Currency') {
-        $optionGroupID = CRM_Core_DAO::getFieldValue('CRM_Core_DAO_OptionGroup', 'currencies_enabled', 'id', 'name');
-      }
       if ($optionGroupID) {
         $options = CRM_Core_OptionGroup::valuesByID(
           $optionGroupID, FALSE, FALSE, FALSE, $context === 'validate' ? 'name' : 'label', !($context === 'validate' || $context === 'get')

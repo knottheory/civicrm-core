@@ -197,11 +197,6 @@
 
         getField: function(entityName, fieldName) {
           const fields = CRM.afGuiEditor.entities[entityName].fields;
-
-          // remove any suffix before looking up meta
-          if (fieldName.includes(':')) {
-            fieldName = fieldName.split(':')[0];
-          }
           return fields[fieldName] || fields[fieldName.substr(fieldName.indexOf('.') + 1)];
         },
 

@@ -43,22 +43,8 @@ class CRM_Core_Menu {
     'breadcrumb',
   ];
 
+  public static $_menuCache = NULL;
   const MENU_ITEM = 1;
-
-  /**
-   * Lock held around a civicrm_menu rebuild, so concurrent rebuilds cannot corrupt the table.
-   *
-   * @see self::store()
-   */
-  private const REBUILD_LOCK = 'data.core.menu';
-
-  /**
-   * Seconds to wait for REBUILD_LOCK before falling back to an unlocked (best-effort) rebuild.
-   *
-   * Generous because a rebuild pays a DB round trip per route and can run for tens of seconds on
-   * an install with a network-remote database.
-   */
-  private const REBUILD_LOCK_TIMEOUT = 180;
 
   /**
    * This function fetches the menu items from xml and xmlMenu hooks.
@@ -332,62 +318,20 @@ class CRM_Core_Menu {
     return FALSE;
   }
 
-  public static function clear() {
-    // Take the rebuild lock: TRUNCATE is a writer too, and clearing the table out from under an
-    // in-flight self::store() would leave it holding only the rows that store() inserts after the
-    // truncate. Callers include extensions (e.g. Afform) that clear on save.
-    $lock = Civi::lockManager()->acquire(self::REBUILD_LOCK, self::REBUILD_LOCK_TIMEOUT);
-    if (!$lock->isAcquired()) {
-      Civi::log()->warning('CRM_Core_Menu::clear() is truncating civicrm_menu without the ' . self::REBUILD_LOCK . ' lock after waiting ' . self::REBUILD_LOCK_TIMEOUT . 's; a concurrent rebuild may be in progress.');
-    }
-    try {
-      self::clearMenu();
-    }
-    finally {
-      $lock->release();
-    }
-  }
-
-  /**
-   * TRUNCATE civicrm_menu and drop the derived route cache.
-   *
-   * Unlocked; callers hold REBUILD_LOCK (see self::clear() and self::store()).
-   */
-  private static function clearMenu() {
-    CRM_Core_DAO::executeQuery('TRUNCATE civicrm_menu');
-    Civi::cache('long')->delete('PublicRouteIndex');
-    Civi::cache('long')->delete('AdminSiteMapLinks');
-  }
-
   /**
    * This function recomputes menu from xml and populates civicrm_menu.
-   */
-  public static function store() {
-    // Take the rebuild lock: without it, concurrent rebuilds collide on the (path, domain_id)
-    // unique key and can leave the table partially populated. On lock-wait timeout, rebuild anyway (best
-    // effort) rather than skip: an unlocked rebuild is the historical behaviour, so the worst case
-    // is no worse than before, and skipping would leave the empty-table caller in self::get() with
-    // no route table. release() no-ops if the lock is not held.
-    $lock = Civi::lockManager()->acquire(self::REBUILD_LOCK, self::REBUILD_LOCK_TIMEOUT);
-    if (!$lock->isAcquired()) {
-      Civi::log()->warning('CRM_Core_Menu::store() is rebuilding civicrm_menu without the ' . self::REBUILD_LOCK . ' lock after waiting ' . self::REBUILD_LOCK_TIMEOUT . 's; a concurrent rebuild may be in progress.');
-    }
-    try {
-      self::clearMenu();
-      self::rebuild();
-    }
-    finally {
-      $lock->release();
-    }
-  }
-
-  /**
-   * Repopulate civicrm_menu from the route definitions.
    *
-   * Unlocked; go through self::store(), which clears the table and holds REBUILD_LOCK around this.
+   * @param bool $truncate
    */
-  private static function rebuild() {
-    $menuArray = self::items(TRUE);
+  public static function store($truncate = TRUE) {
+    // first clean up the db
+    if ($truncate) {
+      $query = 'TRUNCATE civicrm_menu';
+      CRM_Core_DAO::executeQuery($query);
+    }
+    Civi::cache('long')->delete('PublicRouteIndex');
+    $menuArray = self::items($truncate);
+
     self::build($menuArray);
 
     $daoFields = CRM_Core_DAO_Menu::fields();
@@ -432,14 +376,11 @@ class CRM_Core_Menu {
   }
 
   /**
-   * Build admin links and store in long cache
-   *
-   * TODO: this requires passing in menu array in specific point in self::rebuild
-   * It would be neater to decouple and fetch the routes it needs directly
+   * Build admin links.
    *
    * @param array $menu
    */
-  public static function buildAdminLinks($menu): void {
+  public static function buildAdminLinks(&$menu) {
     $values = [];
 
     foreach ($menu as $path => $item) {
@@ -482,7 +423,7 @@ class CRM_Core_Menu {
       ksort($values[$group]);
     }
 
-    \Civi::cache('long')->set('AdminSiteMapLinks', $values);
+    $menu['admin'] = ['breadcrumb' => $values];
   }
 
   /**
@@ -491,7 +432,8 @@ class CRM_Core_Menu {
    * @return array|null
    */
   public static function getAdminLinks() {
-    return \Civi::cache('long')->get('AdminSiteMapLinks');
+    $links = self::get('admin');
+    return $links['breadcrumb'] ?? NULL;
   }
 
   /**
@@ -632,39 +574,6 @@ class CRM_Core_Menu {
    *   Menu entry array.
    */
   public static function get($path) {
-    $path = (string) $path;
-
-    // all civicrm routes begin with civicrm
-    if ($path !== 'civicrm' && !str_starts_with($path, 'civicrm/')) {
-      return NULL;
-    }
-
-    $item = self::fetch($path);
-    if (!$item) {
-      // if nothing is returned it might just be that the routing table has been
-      // cleared and we need to rebuild it...
-      $anyRoutes = \CRM_Core_DAO::executeQuery('SELECT id FROM civicrm_menu LIMIT 1')->fetch();
-      if ($anyRoutes) {
-        // actual not found
-        return $item;
-      }
-      else {
-        // rebuild and try again
-        self::store();
-        $item = self::fetch($path);
-      }
-    }
-    return $item;
-  }
-
-  /**
-   * @param string $path
-   *   Path of menu item to retrieve.
-   *
-   * @return array
-   *   Menu entry array.
-   */
-  protected static function fetch(string $path) {
     $args = explode('/', $path);
 
     $elements = [];
@@ -678,46 +587,70 @@ class CRM_Core_Menu {
     $queryString = implode(', ', $elements);
     $domainID = CRM_Core_Config::domainID();
 
-    $query = "SELECT * FROM civicrm_menu
-      WHERE path in ( $queryString )
-      AND domain_id = $domainID
-      ORDER BY length(path) DESC
-      LIMIT 1";
+    $query = "
+(
+  SELECT *
+  FROM     civicrm_menu
+  WHERE    path in ( $queryString )
+           AND domain_id = $domainID
+  ORDER BY length(path) DESC
+  LIMIT    1
+)
+";
 
-    $records = CRM_Core_Dao::executeQuery($query)->fetchAll();
+    if ($path != 'navigation') {
+      $query .= "
+UNION (
+  SELECT *
+  FROM   civicrm_menu
+  WHERE  path IN ( 'navigation' )
+         AND domain_id = $domainID
+)
+";
+    }
 
-    $route = $records[0] ?? NULL;
+    $menu = new CRM_Core_DAO_Menu();
+    $menu->query($query);
 
-    if ($route && str_contains($path, $route['path'])) {
+    self::$_menuCache = [];
+    $menuPath = NULL;
+    while ($menu->fetch()) {
+      self::$_menuCache[$menu->path] = [];
+      CRM_Core_DAO::storeValues($menu, self::$_menuCache[$menu->path]);
+
       // Move module_data into main item.
-      if (isset($route['module_data'])) {
-        CRM_Utils_Array::extend($route, CRM_Utils_String::unserialize($route['module_data']));
-
-        unset($route['module_data']);
+      if (isset(self::$_menuCache[$menu->path]['module_data'])) {
+        CRM_Utils_Array::extend(self::$_menuCache[$menu->path],
+          CRM_Utils_String::unserialize(self::$_menuCache[$menu->path]['module_data']));
+        unset(self::$_menuCache[$menu->path]['module_data']);
       }
 
-      // Unserialize other fields
-      foreach (self::$_serializedElements as $field) {
-        $route[$field] = CRM_Utils_String::unserialize($route[$field]);
+      // Unserialize other elements.
+      foreach (self::$_serializedElements as $element) {
+        self::$_menuCache[$menu->path][$element] = CRM_Utils_String::unserialize($menu->$element);
+
+        if (str_contains($path, $menu->path)) {
+          $menuPath = &self::$_menuCache[$menu->path];
+        }
       }
     }
 
     if (str_contains($path, 'report/instance')) {
       $args = explode('/', $path);
       if (is_numeric(end($args))) {
-        $route['path'] .= '/' . end($args);
+        $menuPath['path'] .= '/' . end($args);
       }
     }
 
     if (preg_match('/^civicrm\/(upgrade\/)?queue\//', $path)) {
-      CRM_Queue_Menu::alter($path, $route);
+      CRM_Queue_Menu::alter($path, $menuPath);
     }
 
-    if (!empty($route)) {
+    if (!empty($menuPath)) {
       $i18n = CRM_Core_I18n::singleton();
-      $i18n->localizeTitles($route);
+      $i18n->localizeTitles($menuPath);
     }
-    return $route;
+    return $menuPath;
   }
 
   /**

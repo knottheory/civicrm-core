@@ -311,7 +311,6 @@ class CRM_Member_BAO_Membership extends CRM_Member_DAO_Membership {
     // unavailable through apiv3.
     // once we are rid of direct calls to the BAO::create from core
     // we will deprecate this stuff into the v3 api.
-    // API4 doesn't pass in "version" - we explicitly pass it in for API4 Membership - see MembershipSaveTrait
     if (($params['version'] ?? 0) !== 4) {
       if (isset($ids['membership'])) {
         $latestContributionID = CRM_Member_BAO_MembershipPayment::getLatestContributionIDFromLineitemAndFallbackToMembershipPayment($membership->id);
@@ -1497,25 +1496,19 @@ WHERE  civicrm_membership.contact_id = civicrm_contact.id
 
     if (!array_key_exists($cacheKeyString, $supportsCancel)) {
       $supportsCancel[$cacheKeyString] = FALSE;
-      // Always return false if CiviContribute is disabled
-      $isCiviContributeEnabled = CRM_Extension_System::singleton()
-        ->getManager()
-        ->isEnabled('civi_contribute');
-      if ($isCiviContributeEnabled) {
-        $membership = Membership::get(FALSE)
-          ->addSelect('contribution_recur_id')
-          ->addWhere('id', '=', $mid)
-          ->addWhere('contribution_recur_id.contribution_status_id:name', '!=', 'Cancelled')
-          ->execute()->first();
-        if (isset($membership['contribution_recur_id'])) {
-          try {
-            $paymentObject = CRM_Financial_BAO_PaymentProcessor::getPaymentProcessorForRecurringContribution($membership['contribution_recur_id']);
-            $supportsCancel[$cacheKeyString] = $paymentObject->supports('cancelRecurring');
-          }
-          catch (CRM_Core_Exception $e) {
-            // An error could be thrown because the payment processor id on the contribution recur can be NULL.
-            // This happens with CiviSepa.
-          }
+      $membership = Membership::get(FALSE)
+        ->addSelect('contribution_recur_id')
+        ->addWhere('id', '=', $mid)
+        ->addWhere('contribution_recur_id.contribution_status_id:name', '!=', 'Cancelled')
+        ->execute()->first();
+      if (isset($membership['contribution_recur_id'])) {
+        try {
+          $paymentObject = CRM_Financial_BAO_PaymentProcessor::getPaymentProcessorForRecurringContribution($membership['contribution_recur_id']);
+          $supportsCancel[$cacheKeyString] = $paymentObject->supports('cancelRecurring');
+        }
+        catch (CRM_Core_Exception $e) {
+          // An error could be thrown because the payment processor id on the contribution recur can be NULL.
+          // This happens with CiviSepa.
         }
       }
     }
@@ -2078,12 +2071,10 @@ WHERE {$whereClause}";
    * @param array $params
    *   Array of submitted params.
    *
-   * @deprecated use Order api
-   *
    * @return CRM_Contribute_BAO_Contribution
    * @throws \CRM_Core_Exception
    */
-  public static function recordMembershipContribution($params) {
+  public static function recordMembershipContribution(&$params) {
     $contributionParams = [];
     $config = CRM_Core_Config::singleton();
     $contributionParams['currency'] = $config->defaultCurrency;
@@ -2155,6 +2146,9 @@ WHERE {$whereClause}";
         CRM_Contribute_BAO_ContributionSoft::add($contributionSoftParams);
       }
     }
+
+    // store contribution id
+    $params['contribution_id'] = $contribution->id;
 
     return $contribution;
   }

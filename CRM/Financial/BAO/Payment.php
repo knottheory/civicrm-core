@@ -232,7 +232,7 @@ class CRM_Financial_BAO_Payment {
     $contributionDAO->id = $contributionID;
     $contributionDAO->find(TRUE);
     if (isset($params['fee_amount'])) {
-      // Update contribution.fee_amount to be the total of all fees
+      // Update contribution.fee_amount to be be the total of all fees
       // since the payment is already saved the total here will be right.
       $payments = civicrm_api3('Payment', 'get', [
         'contribution_id' => $contributionID,
@@ -494,8 +494,6 @@ class CRM_Financial_BAO_Payment {
       $ratio = 0;
     }
 
-    $isPaymentCompletesContribution = self::isPaymentCompletesContribution($params['contribution_id'], $params['total_amount'], '');
-
     $items = LineItem::get(FALSE)
       ->addSelect('*', 'financial_item.status_id:name', 'financial_item.id', 'financial_item.financial_account_id', 'financial_item_id.currency', 'financial_item.financial_account_id.is_tax', 'financial_item.entity_id', 'financial_item.amount', 'allocated.amount')
       ->addJoin(
@@ -550,7 +548,6 @@ class CRM_Financial_BAO_Payment {
     }
 
     $payableItems = [];
-    $payableItemIndex = NULL;
 
     foreach ($items as $item) {
       $lineItemID = $item['id'];
@@ -594,39 +591,13 @@ class CRM_Financial_BAO_Payment {
       }
       else {
         if (empty($item['balance']) && !empty($ratio) && $params['total_amount'] < 0) {
-          $item['allocation'] = round($item['item_total'] * $ratio, 2);
-        }
-        elseif ($isPaymentCompletesContribution) {
-          $item['allocation'] = $item['balance'];
+          $item['allocation'] = $item['item_total'] * $ratio;
         }
         else {
-          $item['allocation'] = round($item['balance'] * $ratio, 2);
+          $item['allocation'] = $item['balance'] * $ratio;
         }
       }
       $payableItems[$payableItemIndex] = $item;
-    }
-
-    if (empty($lineItemAllocations) && !empty($ratio) && isset($payableItems[$payableItemIndex])) {
-      $totalTaxAllocation = 0;
-      $totalAllocation = 0;
-      $lastNonTaxKey = $payableItemIndex;
-
-      foreach ($payableItems as $key => $item) {
-        if ($item['financial_item.financial_account_id.is_tax']) {
-          $totalTaxAllocation += $item['allocation'];
-        }
-        else {
-          $totalAllocation += $item['allocation'];
-          $lastNonTaxKey = $key;
-        }
-      }
-
-      $total = $totalTaxAllocation + $totalAllocation;
-      $leftPayment = $params['total_amount'] - $total;
-
-      if ($lastNonTaxKey !== NULL && $leftPayment > 0) {
-        $payableItems[$lastNonTaxKey]['allocation'] += $leftPayment;
-      }
     }
 
     return $payableItems;

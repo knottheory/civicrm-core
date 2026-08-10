@@ -12,10 +12,10 @@ if (!defined('CIVI_SETUP')) {
      */
     $ctrl = $e->getCtrl();
 
-    $ctrl->blocks['install'] = [
+    $ctrl->blocks['install'] = array(
       'is_active' => TRUE,
       'file' => __DIR__ . DIRECTORY_SEPARATOR . 'install.tpl.php',
       'class' => 'if-no-errors',
       'weight' => 70,
-    ];
+    );
   }, \Civi\Setup::PRIORITY_PREPARE);

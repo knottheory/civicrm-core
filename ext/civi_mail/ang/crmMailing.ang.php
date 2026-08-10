@@ -9,7 +9,7 @@ return [
   'css' => ['ang/crmMailing.css'],
   'partials' => ['ang/crmMailing'],
   'settingsFactory' => ['CRM_Mailing_Info', 'createAngularSettings'],
-  'requires' => ['crmUtil', 'crmAttachment', 'crmAutosave', 'ngRoute', 'crmUi', 'dialogService', 'crmResource', 'api4'],
+  'requires' => ['crmUtil', 'crmAttachment', 'crmAutosave', 'ngRoute', 'crmUi', 'dialogService', 'crmResource'],
   'permissions' => [
     'view all contacts',
     'edit all contacts',

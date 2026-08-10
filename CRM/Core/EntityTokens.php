@@ -102,9 +102,6 @@ class CRM_Core_EntityTokens extends AbstractTokenSubscriber {
       // eg. role_id for participant would be an array here.
       $fieldValue = implode(', ', $fieldValue);
     }
-    elseif (is_string($fieldValue) && str_contains($fieldValue, \CRM_Core_DAO::VALUE_SEPARATOR)) {
-      $fieldValue = implode(', ', \CRM_Utils_Array::explodePadded($fieldValue));
-    }
 
     if ($this->isPseudoField($field)) {
       if (!empty($fieldValue)) {
@@ -350,9 +347,8 @@ class CRM_Core_EntityTokens extends AbstractTokenSubscriber {
    */
   protected function getFieldValue(TokenRow $row, string $field) {
     $entityName = $this->getEntityName();
-    $entity = (array) $row->context[$entityName] ?? [];
-    if (isset($entity[$field])) {
-      return $entity[$field];
+    if (isset($row->context[$entityName][$field])) {
+      return $row->context[$entityName][$field];
     }
 
     $entityID = $row->context[$this->getEntityIDField()];
@@ -652,7 +648,7 @@ class CRM_Core_EntityTokens extends AbstractTokenSubscriber {
     if (!isset($messageTokens[$this->entity])) {
       return FALSE;
     }
-    return array_intersect($messageTokens[$this->entity], array_keys($this->getTokenMetadata() + $this->getDeprecatedTokens()));
+    return array_intersect($messageTokens[$this->entity], array_keys($this->getTokenMetadata()));
   }
 
   /**
@@ -735,12 +731,11 @@ class CRM_Core_EntityTokens extends AbstractTokenSubscriber {
    * @param string $joinField
    * @param array $tokenList
    * @param array $hiddenTokens
-   * @param string $titlePrefix
    *
    * @return array
    * @throws \CRM_Core_Exception
    */
-  protected function getRelatedTokensForEntity(string $entity, string $joinField, array $tokenList, $hiddenTokens = [], string $titlePrefix = ''): array {
+  protected function getRelatedTokensForEntity(string $entity, string $joinField, array $tokenList, $hiddenTokens = []): array {
     if (!array_key_exists($entity, \Civi::service('action_object_provider')->getEntities())) {
       return [];
     }
@@ -752,7 +747,7 @@ class CRM_Core_EntityTokens extends AbstractTokenSubscriber {
     $tokens = [];
     foreach ($relatedTokens as $relatedToken) {
       $tokens[$joinField . '.' . $relatedToken['name']] = [
-        'title' => $titlePrefix . $relatedToken['title'],
+        'title' => $relatedToken['title'],
         'name' => $joinField . '.' . $relatedToken['name'],
         'type' => 'mapped',
         'data_type' => $relatedToken['data_type'],

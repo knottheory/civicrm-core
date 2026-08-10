@@ -313,21 +313,7 @@ class ContributionParser extends ImportParser {
     $rowNumber = (int) ($values[array_key_last($values)]);
     try {
       $params = $this->getMappedRow($values);
-      $entities = [
-        '' => [
-          'entity' => 'Contribution',
-          'join' => NULL,
-        ],
-        'Contact' => [
-          'entity' => 'Contact',
-          'join' => [],
-        ],
-        'SoftCreditContact' => [
-          'entity' => 'Contact',
-          'join' => [],
-        ],
-      ];
-      \CRM_Utils_Hook::importAlterMappedRow('import', 'contribution_import', $params, $values, $this->getUserJobID(), $entities);
+      \CRM_Utils_Hook::importAlterMappedRow('import', 'contribution_import', $params, $values, $this->getUserJobID());
 
       $contributionParams = $params['Contribution'];
       //CRM-10994

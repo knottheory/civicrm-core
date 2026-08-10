@@ -79,16 +79,15 @@ class CRM_Core_BAO_Country extends CRM_Core_DAO_Country {
   /**
    * Provide cached default contact country.
    *
-   * @return string|null
+   * @return string
    */
-  public static function defaultContactCountry(): ?string {
+  public static function defaultContactCountry() {
+    static $cachedContactCountry = NULL;
     $defaultContactCountry = Civi::settings()->get('defaultContactCountry');
-    $cachedContactCountry = Civi::$statics[__METHOD__] ?? NULL;
 
     if (!empty($defaultContactCountry) && !$cachedContactCountry) {
       $countryIsoCodes = CRM_Core_PseudoConstant::countryIsoCode();
       $cachedContactCountry = $countryIsoCodes[$defaultContactCountry] ?? NULL;
-      Civi::$statics[__METHOD__] = $cachedContactCountry;
     }
     return $cachedContactCountry;
   }
@@ -151,15 +150,14 @@ class CRM_Core_BAO_Country extends CRM_Core_DAO_Country {
   /**
    * Provide cached default country name.
    *
-   * @return string|null
+   * @return string
    */
-  public static function defaultContactCountryName(): ?string {
+  public static function defaultContactCountryName() {
+    static $cachedContactCountryName = NULL;
     $defaultContactCountry = Civi::settings()->get('defaultContactCountry');
-    $cachedContactCountryName = Civi::$statics[__METHOD__] ?? NULL;
     if (!$cachedContactCountryName && $defaultContactCountry) {
       $countryCodes = CRM_Core_PseudoConstant::country();
-      $cachedContactCountryName = $countryCodes[$defaultContactCountry] ?? NULL;
-      Civi::$statics[__METHOD__] = $cachedContactCountryName;
+      $cachedContactCountryName = $countryCodes[$defaultContactCountry];
     }
     return $cachedContactCountryName;
   }
@@ -167,12 +165,12 @@ class CRM_Core_BAO_Country extends CRM_Core_DAO_Country {
   /**
    * Provide cached default currency symbol.
    *
-   * @param string|null $defaultCurrency
+   * @param string $defaultCurrency
    *
    * @return string
    */
-  public static function defaultCurrencySymbol(?string $defaultCurrency = NULL): string {
-    $cachedSymbol = Civi::$statics[__METHOD__] ?? NULL;
+  public static function defaultCurrencySymbol($defaultCurrency = NULL) {
+    static $cachedSymbol = NULL;
     if (!$cachedSymbol || $defaultCurrency) {
       $currency = $defaultCurrency ?: Civi::settings()->get('defaultCurrency');
       if ($currency) {
@@ -182,7 +180,6 @@ class CRM_Core_BAO_Country extends CRM_Core_DAO_Country {
       else {
         $cachedSymbol = '$';
       }
-      Civi::$statics[__METHOD__] = $cachedSymbol;
     }
     return $cachedSymbol;
   }

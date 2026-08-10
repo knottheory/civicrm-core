@@ -56,11 +56,10 @@ class ContactAutofillBasedOnCase extends AutoService implements EventSubscriberI
   }
 
   public static function onAfformSortPrefill(AfformEntitySortEvent $event): void {
-    $entities = $event->getFormDataModel()->getEntities();
-    foreach ($entities as $entityName => $entity) {
+    foreach ($event->getFormDataModel()->getEntities() as $entityName => $entity) {
       $autoFillMode = $entity['autofill'] ?? '';
       $relatedCase = $entity['autofill-case'] ?? NULL;
-      if ($relatedCase && \array_key_exists($relatedCase, $entities) && str_starts_with($autoFillMode, 'role_on_case:')) {
+      if ($relatedCase && str_starts_with($autoFillMode, 'role_on_case:')) {
         $event->addDependency($entityName, $relatedCase);
       }
     }

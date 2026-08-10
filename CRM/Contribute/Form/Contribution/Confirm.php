@@ -43,8 +43,6 @@ class CRM_Contribute_Form_Contribution_Confirm extends CRM_Contribute_Form_Contr
 
   public $submitOnce = TRUE;
 
-  protected $submittableMoneyFields = ['total_amount'];
-
   private array $lineItems;
 
   /**
@@ -86,7 +84,6 @@ class CRM_Contribute_Form_Contribution_Confirm extends CRM_Contribute_Form_Contr
           ->addValue('fee_amount', $result['fee_amount'] ?? NULL)
           ->addValue('card_type_id', $paymentParams['card_type_id'])
           ->addValue('pan_truncation', $paymentParams['pan_truncation'])
-          ->addValue('trxn_date', ($paymentParams['receive_date'] ?? date('YmdHis')))
           ->execute();
       }
     }
@@ -736,7 +733,7 @@ class CRM_Contribute_Form_Contribution_Confirm extends CRM_Contribute_Form_Contr
     }
     if ($this->getSelectedProductID()) {
       $option = $this->getSelectedProductOption();
-      $this->buildPremiumsBlock(FALSE, $option, 'Confirm');
+      $this->buildPremiumsBlock(FALSE, $option);
       $this->set('option', $option);
     }
     else {

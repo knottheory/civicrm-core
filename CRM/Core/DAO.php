@@ -371,7 +371,6 @@ class CRM_Core_DAO extends DB_DataObject {
     $FKClassName = $fieldDef['FKClassName'] ?? NULL;
     $dbName = $fieldDef['name'];
     $daoName = str_replace('_BAO_', '_DAO_', get_class($this));
-    $fkColumnName = $fieldDef['FKColumnName'] ?? 'id';
 
     // skip the FK if it is not required
     // if it's contact id we should create even if not required
@@ -383,24 +382,24 @@ class CRM_Core_DAO extends DB_DataObject {
     if (!$required && $dbName != 'contact_id') {
       $fkDAO = new $FKClassName();
       if ($fkDAO->find(TRUE)) {
-        $this->$dbName = $fkDAO->$fkColumnName;
+        $this->$dbName = $fkDAO->id;
       }
     }
 
     elseif (in_array($FKClassName, CRM_Core_DAO::$_testEntitiesToSkip)) {
       $depObject = new $FKClassName();
       $depObject->find(TRUE);
-      $this->$dbName = $depObject->$fkColumnName;
+      $this->$dbName = $depObject->id;
     }
     elseif ($daoName == 'CRM_Member_DAO_MembershipType' && $fieldName == 'member_of_contact_id') {
       // FIXME: the fields() metadata is not specific enough
       $depObject = CRM_Core_DAO::createTestObject($FKClassName, ['contact_type' => 'Organization']);
-      $this->$dbName = $depObject->$fkColumnName;
+      $this->$dbName = $depObject->id;
     }
     else {
       //if it is required we need to generate the dependency object first
       $depObject = CRM_Core_DAO::createTestObject($FKClassName, $params[$dbName] ?? 1);
-      $this->$dbName = $depObject->$fkColumnName;
+      $this->$dbName = $depObject->id;
     }
   }
 
@@ -2464,9 +2463,7 @@ SELECT contact_id
     $config->backtrace = TRUE;
 
     $object = new $daoName();
-    foreach ($params as $k => $v) {
-      $object->$k = $v;
-    }
+    $object->id = $params['id'] ?? NULL;
 
     // array(array(0 => $daoName, 1 => $daoParams))
     $deletions = [];
@@ -2479,7 +2476,6 @@ SELECT contact_id
 
         $FKClassName = $value['FKClassName'] ?? NULL;
         $required = $value['required'] ?? NULL;
-        $fkColumnName = $value['FKColumnName'] ?? 'id';
         if ($FKClassName != NULL
           && $object->$dbName
           && !in_array($FKClassName, CRM_Core_DAO::$_testEntitiesToSkip)
@@ -2489,7 +2485,7 @@ SELECT contact_id
           && $dbName != 'member_of_contact_id'
         ) {
           // x
-          $deletions[] = [$FKClassName, [$fkColumnName => $object->$dbName]];
+          $deletions[] = [$FKClassName, ['id' => $object->$dbName]];
         }
       }
     }

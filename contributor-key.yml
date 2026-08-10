@@ -399,8 +399,6 @@
 
 - name        : Andy Clarke
 
-- github      : davemoreton
-
 - github      : dbwells
   name        : Dan Wells
   organization: Calvin Theological Seminary
@@ -855,10 +853,6 @@
 - github      : jeromelebleu
   name        : Jérôme Lebleu
 
-- github      : jfilter
-  name        : Johannes Filter
-  organization: civico GmbH
-
 - github      : JGaunt
   name        : Jade Gaunt
   organization: GMCVO Databases
@@ -894,9 +888,6 @@
 - github      : johntwyman
   name        : John Twyman
   organization: Australian Greens
-
-- github      : jonathandhn
-  name        : Jonathan Dahan
 
 - github      : jorich-2000
   name        : Jonathan Richardson
@@ -1515,9 +1506,6 @@
   name        : Robert Gilman
   organization: Context Institute
 
-- github      : RisingOrange
-  name        : Jakub Fidler
-
 - github      : robbrandt
   name        : Rob Brandt
   organization: Botanical Society of America
@@ -1690,8 +1678,6 @@
 - github      : sunilpawar
   name        : Sunil Pawar
   organization: Skvare
-
-- github      : sushant-cividesk
 
 - github      : swastikpareek
   name        : Swastik Pareek
@@ -1927,7 +1913,7 @@
 
 - github      : wintermoor
   name        : Torben Bertram
-  organization: civiservice.de GmbH
+  organization: Civiservice.de GmbH
 
 - github      : wmortada
   name        : William Mortada
@@ -2040,11 +2026,3 @@
 - github      : kernie
   name        : Maarten Becker
   organization: Ingenieurbüro Dr. Maarten Becker
-
-- github      : yf-zhou
-  name        : Yifei Zhou
-  organization: JMA Consulting
-
-- github      : yorkshirerose
-  name        : Rose
-  organization: Ruza Solutions

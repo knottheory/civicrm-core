@@ -15,30 +15,30 @@ class Get extends \Civi\Api4\Generic\BasicGetAction {
   /**
    * @return array
    */
-  public function getRecords(): array {
-    $behaviors = \Civi::$statics[__METHOD__] ?? [];
+  public function getRecords():array {
+    $entitiesToGet = $this->_itemsToGet('entity');
 
-    if (!$behaviors) {
-      $classes = ClassScanner::get(['interface' => BehaviorInterface::class]);
-      /** @var \Civi\Afform\BehaviorInterface $behaviorClass */
-      foreach ($classes as $behaviorClass) {
-        $entities = $behaviorClass::getEntities();
-        // Optimization
-        $behaviors[] = [
-          'key' => $behaviorClass::getKey(),
-          'attributes' => $behaviorClass::getAttributes(),
-          'title' => $behaviorClass::getTitle(),
-          'description' => $behaviorClass::getDescription(),
-          'entities' => $entities,
-          'template' => $behaviorClass::getTemplate(),
-          // Get modes for every supported entity
-          'modes' => array_map([$behaviorClass, 'getModes'], array_combine($entities, $entities)),
-          'default_mode' => $behaviorClass::getDefaultMode(),
-        ];
+    $classes = ClassScanner::get(['interface' => BehaviorInterface::class]);
+    /** @var \Civi\Afform\BehaviorInterface $behaviorClass */
+    foreach ($classes as $behaviorClass) {
+      $entities = $behaviorClass::getEntities();
+      // Optimization
+      if ($entitiesToGet && !array_intersect($entities, $entitiesToGet)) {
+        continue;
       }
-      \Civi::$statics[__METHOD__] = $behaviors;
+      $result[] = [
+        'key' => $behaviorClass::getKey(),
+        'attributes' => $behaviorClass::getAttributes(),
+        'title' => $behaviorClass::getTitle(),
+        'description' => $behaviorClass::getDescription(),
+        'entities' => $entities,
+        'template' => $behaviorClass::getTemplate(),
+        // Get modes for every supported entity
+        'modes' => array_map([$behaviorClass, 'getModes'], array_combine($entities, $entities)),
+        'default_mode' => $behaviorClass::getDefaultMode(),
+      ];
     }
-    return $behaviors;
+    return $result;
   }
 
 }

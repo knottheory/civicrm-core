@@ -1,5 +1,4 @@
 // http://civicrm.org/licensing
-/* global Backdrop */
 (function($) {
   $(document).on('crmLoad', '#civicrm-menu', function() {
     if (Backdrop.settings.admin_bar && !Backdrop.settings.admin_bar.position_fixed) {

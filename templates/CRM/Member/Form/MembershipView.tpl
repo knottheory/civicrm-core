@@ -70,7 +70,7 @@
         </summary>
         <div class="crm-accordion-body">
           {if $rows.0.contribution_id}
-            {include file="CRM/Contribute/Form/Selector.tpl" context="dashboard" single=false}
+            {include file="CRM/Contribute/Form/Selector.tpl" context="Search"}
           {/if}
           <script type="text/javascript">
             var membershipID = {$id};

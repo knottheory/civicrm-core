@@ -5,11 +5,9 @@
       {{ label }}
     </label>
   </span>
-  <span ng-switch-when="select">
-    <select id="{{ ctr.flag }}-{{ $index }}" class="form-control crm-auto-width" ng-model="$ctrl.arg[$ctrl.flag]" ng-change="$ctrl.writeExpr();" title="{{:: ts('Function Flag')}}">
-      <option ng-repeat="(val, label) in $ctrl.param[$ctrl.flag]" value="{{ val }}">
-        {{ label }}
-      </option>
-    </select>
-  </span>
+  <select ng-switch-when="select" class="form-control crm-auto-width" ng-model="$ctrl.arg[$ctrl.flag]" ng-change="$ctrl.writeExpr();">
+    <option ng-repeat="(val, label) in $ctrl.param[$ctrl.flag]" value="{{ val }}">
+      {{ label }}
+    </option>
+  </select>
 </span>

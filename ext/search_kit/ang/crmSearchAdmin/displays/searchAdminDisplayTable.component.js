@@ -52,19 +52,9 @@
             this.setColumnMode('auto');
           }
         }
-        // Backwards compatibility: default header/footer placement
-        if (ctrl.display.settings.tally) {
-          const tally = ctrl.display.settings.tally;
-          if (tally.header === undefined) {
-            tally.header = false;
-          }
-          if (tally.footer === undefined) {
-            tally.footer = true;
-          }
-        }
       };
 
-      this.setColumnMode = (value, setTallyDefaults) => {
+      this.setColumnMode = (value) => {
         if (value === 'auto') {
           delete this.display.settings.columns;
         }
@@ -72,7 +62,7 @@
         // and populate or validate this.settings.columns
         else {
           this.parent.initColumns({label: true, sortable: true});
-          if (setTallyDefaults && this.display.settings.tally) {
+          if (this.display.settings.tally) {
             this.setTallyDefaults();
           }
         }
@@ -109,18 +99,13 @@
         }
       };
 
-      // Toggles the tally display for a given position ('header' or 'footer').
-      // Initializes default settings on first enable, or cleans them up if disabled everywhere.
-      this.toggleTally = (position) => {
-        const hasTally = !!this.display.settings.tally;
-        if (!hasTally) {
-          this.display.settings.tally = {label: ts('Totals'), header: false, footer: false};
-          this.setTallyDefaults();
-        }
-        this.display.settings.tally[position] = !this.display.settings.tally[position];
-        if (!this.display.settings.tally.header && !this.display.settings.tally.footer) {
+      this.toggleTally = () => {
+        if (this.display.settings.tally) {
           delete this.display.settings.tally;
           this.display.settings.columns.forEach((col) => delete col.tally);
+        } else {
+          this.display.settings.tally = {label: ts('Total')};
+          this.setTallyDefaults();
         }
       };
 
@@ -128,7 +113,7 @@
         this.display.settings.columns?.forEach((col) => {
           if (col.type === 'field') {
             col.tally = {
-              fn: searchMeta.getDefaultAggregateFn(searchMeta.parseExpr(this.parent.getExprFromSelect(col.key), this.parent.savedSearch), this.parent.savedSearch)
+              fn: searchMeta.getDefaultAggregateFn(searchMeta.parseExpr(this.parent.getExprFromSelect(col.key)), this.apiParams)
             };
           }
         });

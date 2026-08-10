@@ -141,24 +141,24 @@ return [
             [
               'type' => 'field',
               'key' => 'case_type_id:label',
-              'label' => 'Case Type',
+              'label' => E::ts('Case Type'),
               'sortable' => TRUE,
             ],
             [
               'type' => 'field',
               'key' => 'subject',
-              'label' => 'Subject',
+              'label' => E::ts('Subject'),
               'sortable' => TRUE,
             ],
             [
               'type' => 'field',
               'key' => 'status_id:label',
-              'label' => 'Status',
+              'label' => E::ts('Status'),
             ],
             [
               'type' => 'field',
               'key' => 'GROUP_CONCAT_Case_CaseContact_Contact_01_Contact_RelationshipCache_Contact_01_sort_name_Case_CaseContact_Contact_01_sort_name',
-              'label' => 'Case Manager',
+              'label' => E::ts('Case Manager'),
               'sortable' => TRUE,
             ],
             [
@@ -166,17 +166,17 @@ return [
               'key' => 'GROUP_FIRST_Case_CaseActivity_Activity_01_activity_date_time_Case_CaseActivity_Activity_01_activity_date_time',
               'format' => '',
               'rewrite' => '[GROUP_FIRST_Case_CaseActivity_Activity_01_activity_type_id_label_Case_CaseActivity_Activity_01_activity_date_time]: [GROUP_FIRST_Case_CaseActivity_Activity_01_activity_date_time_Case_CaseActivity_Activity_01_activity_date_time]',
-              'label' => 'Last Completed',
+              'label' => E::ts('Last Completed'),
             ],
             [
               'type' => 'field',
               'key' => 'GROUP_FIRST_Case_CaseActivity_Activity_02_activity_date_time_Case_CaseActivity_Activity_02_activity_date_time',
-              'label' => 'Next Scheduled',
+              'label' => E::ts('Next Scheduled'),
               'rewrite' => '[GROUP_FIRST_Case_CaseActivity_Activity_02_activity_type_id_label_Case_CaseActivity_Activity_02_activity_date_time]: [GROUP_FIRST_Case_CaseActivity_Activity_02_activity_date_time_Case_CaseActivity_Activity_02_activity_date_time]',
               'cssRules' => [],
             ],
             [
-              'label' => 'Activities',
+              'label' => E::ts('Activities'),
               'rewrite' => '',
               'alignment' => '',
               'type' => 'subsearch',
@@ -206,31 +206,11 @@ return [
                   'join' => '',
                   'target' => '',
                   'icon' => 'fa-external-link',
-                  'text' => 'Manage',
+                  'text' => E::ts('Manage'),
                   'style' => 'default',
                   'path' => '',
                   'task' => '',
                   'conditions' => [],
-                ],
-                [
-                  'task' => 'delete',
-                  'entity' => 'Case',
-                  'join' => '',
-                  'target' => 'crm-popup',
-                  'icon' => 'fa-trash',
-                  'text' => 'Delete',
-                  'style' => 'danger',
-                  'path' => '',
-                  'action' => '',
-                  'conditions' => [
-                    [
-                      'check user permission',
-                      '=',
-                      [
-                        'delete in CiviCase',
-                      ],
-                    ],
-                  ],
                 ],
               ],
               'type' => 'links',
@@ -254,7 +234,7 @@ return [
             [
               'path' => 'civicrm/case/add?reset=1&action=add&cid=[Case_CaseContact_Contact_01.id]&context=case',
               'icon' => 'fa-circle-plus',
-              'text' => 'Add Case',
+              'text' => E::ts('Add Case'),
               'style' => 'default',
               'conditions' => [
                 [

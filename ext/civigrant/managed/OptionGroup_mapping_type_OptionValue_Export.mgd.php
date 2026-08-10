@@ -25,6 +25,7 @@ return [
         'icon' => NULL,
         'color' => NULL,
         'component_id' => NULL,
+        'domain_id' => NULL,
         'visibility_id' => NULL,
       ],
       'match' => ['option_group_id', 'name'],

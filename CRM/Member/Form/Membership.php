@@ -934,12 +934,18 @@ class CRM_Member_Form_Membership extends CRM_Member_Form {
     // retrieve 'from email id' for acknowledgement
     $receiptFrom = $formValues['from_email_address'] ?? NULL;
 
+    // @todo figure out how much of the stuff below is genuinely shared with the batch form & a logical shared place.
+    // @todo - as of 5.74 module is noisy deprecated - can stop assigning around 5.80.
+    $this->assign('module', 'Membership');
+
     if (!empty($formValues['is_renew'])) {
       $this->assign('receiptType', 'membership renewal');
     }
     else {
       $this->assign('receiptType', 'membership signup');
     }
+    // @todo - as of 5.74 form values is noisy deprecated - can stop assigning around 5.80.
+    $this->assign('formValues', $formValues);
 
     if ((empty($this->_contributorDisplayName) || empty($this->_contributorEmail))) {
       // in this case the form is being called statically from the batch editing screen
@@ -998,9 +1004,8 @@ class CRM_Member_Form_Membership extends CRM_Member_Form {
     // In form mode these are set in preProcess.
     //TODO: set memberships, fixme
     $this->setContextVariables($formValues);
-    $originalMembershipType = $this->getMembershipValue('membership_type_id');
 
-    $selectedMemberships = $this->_memTypeSelected = self::getSelectedMemberships(
+    $this->_memTypeSelected = self::getSelectedMemberships(
       $this->_priceSet,
       $formValues
     );
@@ -1196,7 +1201,7 @@ class CRM_Member_Form_Membership extends CRM_Member_Form {
         $params['status_id'] = $pendingMembershipStatusId;
         $params['skipStatusCal'] = TRUE;
         // as membership is pending set dates to null.
-        foreach ($selectedMemberships as $memType) {
+        foreach ($this->_memTypeSelected as $memType) {
           $membershipTypeValues[$memType]['joinDate'] = NULL;
           $membershipTypeValues[$memType]['startDate'] = NULL;
           $membershipTypeValues[$memType]['endDate'] = NULL;
@@ -1223,7 +1228,7 @@ class CRM_Member_Form_Membership extends CRM_Member_Form {
       $params['action'] = $this->_action;
 
       // create membership record
-      foreach ($selectedMemberships as $memType) {
+      foreach ($this->_memTypeSelected as $memType) {
         $membershipParams = array_merge($membershipTypeValues[$memType], $params);
         if (isset($result['fee_amount'])) {
           $membershipParams['fee_amount'] = $result['fee_amount'];
@@ -1297,14 +1302,11 @@ class CRM_Member_Form_Membership extends CRM_Member_Form {
       }
       $params['lineItems'] = $lineItem;
       if (!empty($formValues['record_contribution'])) {
-        $params['contribution_id'] = CRM_Member_BAO_Membership::recordMembershipContribution($params)->id;
+        CRM_Member_BAO_Membership::recordMembershipContribution($params);
       }
     }
 
-    // if selected membership doesn't match with earlier membership
-    if ($originalMembershipType && !in_array($originalMembershipType, $selectedMemberships)) {
-      $this->updateContributionOnMembershipTypeChange($params);
-    }
+    $this->updateContributionOnMembershipTypeChange($params);
 
     if (($this->_action & CRM_Core_Action::UPDATE)) {
       $this->addStatusMessage($this->getStatusMessageForUpdate());
@@ -1344,6 +1346,7 @@ class CRM_Member_Form_Membership extends CRM_Member_Form {
         // templates.
         $formValues['receipt_text_signup'] = $this->getSubmittedValue('receipt_text');
         // send email receipt
+        $this->assignBillingName();
         $this->emailMembershipReceipt($formValues);
         $this->addStatusMessage(ts('A membership confirmation and receipt has been sent to %1.', [1 => $this->_contributorEmail]));
       }
@@ -1367,12 +1370,14 @@ class CRM_Member_Form_Membership extends CRM_Member_Form {
    *
    * @throws \CRM_Core_Exception
    */
-  protected function updateContributionOnMembershipTypeChange(array $inputParams): void {
+  protected function updateContributionOnMembershipTypeChange($inputParams) {
     if (Civi::settings()->get('update_contribution_on_membership_type_change') &&
-      // Note these next 2 tests are pretty much redundant as we only reach this clause it there
-      // was a pre-existing membership that has had a type status change.
-      ($this->getAction() & CRM_Core_Action::UPDATE) &&
-      $this->getMembershipID()
+    // on update
+      ($this->_action & CRM_Core_Action::UPDATE) &&
+    // if ID is present
+      $this->_id &&
+    // if selected membership doesn't match with earlier membership
+      !in_array($this->_memType, $this->_memTypeSelected)
     ) {
       if ($this->isCreateRecurringContribution()) {
         CRM_Core_Session::setStatus(ts('Associated recurring contribution cannot be updated on membership type change.'), ts('Error'), 'error');
@@ -1890,13 +1895,9 @@ class CRM_Member_Form_Membership extends CRM_Member_Form {
    * Get the created or edited membership ID.
    *
    * @return int|null
-   *
-   * @api This function will not change in a minor release and is supported for
-   * use outside of core. This annotation / external support for properties
-   * is only given where there is specific test cover.
    */
   public function getMembershipID(): ?int {
-    return parent::getMembershipID() ?: ($this->_membershipIDs[0] ?? NULL);
+    return $this->_membershipIDs[0] ?? NULL;
   }
 
   /**

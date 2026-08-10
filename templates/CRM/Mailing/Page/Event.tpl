@@ -17,7 +17,7 @@
       <tr>
         {foreach from=$columnHeaders item=header}
           <th>
-            {if array_key_exists('sort', $header) && $header.sort}
+            {if $header.sort}
               {assign var='key' value=$header.sort}
               {$sort->_response.$key.link}
             {else}

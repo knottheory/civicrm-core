@@ -30,10 +30,6 @@ class CRM_Member_Form_Task extends CRM_Core_Form_Task {
    */
   protected $_memberIds;
 
-  public function getDefaultEntity(): string {
-    return 'Membership';
-  }
-
   /**
    * Build all the data structures needed to build the form.
    *

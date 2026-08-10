@@ -46,7 +46,7 @@ return [
         'saved_search_id.name' => 'Site_Email_Addresses',
         'type' => 'table',
         'settings' => [
-          'description' => 'You can use this page to define one or more general Email Addresses that can be selected as the From Address.',
+          'description' => ts('You can use this page to define one or more general Email Addresses that can be selected as the From Address.'),
           'sort' => [
             ['is_default', 'DESC'],
             ['display_name', 'ASC'],
@@ -61,31 +61,31 @@ return [
             [
               'type' => 'field',
               'key' => 'display_name',
-              'label' => 'Display Name',
+              'label' => ts('Display Name'),
               'sortable' => TRUE,
             ],
             [
               'type' => 'field',
               'key' => 'email',
-              'label' => 'Email',
+              'label' => ts('Email'),
               'sortable' => TRUE,
             ],
             [
               'type' => 'field',
               'key' => 'description',
-              'label' => 'Description',
+              'label' => ts('Description'),
               'sortable' => TRUE,
             ],
             [
               'type' => 'field',
               'key' => 'is_active',
-              'label' => 'Enabled',
+              'label' => ts('Enabled'),
               'sortable' => TRUE,
             ],
             [
               'type' => 'field',
               'key' => 'is_default',
-              'label' => 'Default',
+              'label' => ts('Default'),
               'sortable' => TRUE,
               'icons' => [
                 [
@@ -108,7 +108,7 @@ return [
                   'join' => '',
                   'target' => 'crm-popup',
                   'icon' => 'fa-pencil',
-                  'text' => 'Edit Email Address',
+                  'text' => ts('Edit Email Address'),
                   'style' => 'default',
                   'path' => '',
                   'task' => '',
@@ -120,7 +120,7 @@ return [
                   'join' => '',
                   'target' => 'crm-popup',
                   'icon' => 'fa-toggle-off',
-                  'text' => 'Disable Email Addresses',
+                  'text' => ts('Disable Email Addresses'),
                   'style' => 'default',
                   'path' => '',
                   'action' => '',
@@ -132,7 +132,7 @@ return [
                   'join' => '',
                   'target' => 'crm-popup',
                   'icon' => 'fa-toggle-on',
-                  'text' => 'Enable Email Addresses',
+                  'text' => ts('Enable Email Addresses'),
                   'style' => 'default',
                   'path' => '',
                   'action' => '',
@@ -144,7 +144,7 @@ return [
                   'join' => '',
                   'target' => 'crm-popup',
                   'icon' => 'fa-trash',
-                  'text' => 'Delete Email Addresses',
+                  'text' => ts('Delete Email Addresses'),
                   'style' => 'danger',
                   'path' => '',
                   'action' => '',
@@ -164,7 +164,7 @@ return [
           'toolbar' => [
             [
               'entity' => 'SiteEmailAddress',
-              'text' => 'Add Email Address',
+              'text' => ts('Add Email Address'),
               'icon' => 'fa-plus',
               'target' => 'crm-popup',
               'action' => 'add',

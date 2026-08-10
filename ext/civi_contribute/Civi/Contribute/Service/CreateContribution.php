@@ -1,14 +1,10 @@
 <?php
 namespace Civi\Contribute\Service;
 
-use Civi\Afform\Event\AfformEntitySortEvent;
 use Civi\Afform\Event\AfformSubmitEvent;
 use Civi\Afform\Event\AfformValidateEvent;
-use Civi\Afform\FormDataModel;
 use Civi\Contribute\Utils\PriceFieldUtils;
-use Civi\Core\Event\PreEvent;
 use Civi\Core\Service\AutoService;
-use CRM_Afform_ArrayHtml;
 use DateTime;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -38,7 +34,7 @@ class CreateContribution extends AutoService implements EventSubscriberInterface
    *
    * Can be overridden using setActive method
    */
-  protected function isActive(FormDataModel $formDataModel): bool {
+  protected function isActive($formDataModel): bool {
     if (!\Civi::settings()->get('contribute_enable_afform_contributions')) {
       return FALSE;
     }
@@ -59,33 +55,25 @@ class CreateContribution extends AutoService implements EventSubscriberInterface
    */
   public static function getSubscribedEvents(): array {
     return [
-      // validate afform config
-      'hook_civicrm_pre' => ['validateFormModel', 100],
-      // add dependencies from Contribution to entities with Price Fields
-      'civi.afform.sort.submit' => ['onAfformEntitySort', 0],
-      'civi.afform.validate' => ['validateLineItems', 101],
-      // the GenericEntitySave is a no-op for Contributions
-      // this provides the equivalent functionality for new Contributions
-      // TODO: provide sensible default for existing contributions
-      'civi.afform.submit' => ['saveNewContribution', 0],
+      'civi.afform.validate' => [
+        // TODO: this belongs in a hook to validate a form
+        // that is being saved or loaded rather than submitted
+        // but we dont have that yet - hopefully the admin will
+        // try to submit the form at least once
+        ['validateFormModel', 1000],
+        ['validateLineItems', 101],
+      ],
+      'civi.afform.submit' => [
+        // the GenericEntitySave is a no-op for Contributions
+        // this provides the equivalent functionality for new Contributions
+        // TODO: provide sensible default for existing contributions
+        ['saveNewContribution', 0],
+      ],
     ];
   }
 
-  public function validateFormModel(PreEvent $event) {
-    if ($event->entity !== 'Afform') {
-      return;
-    }
-
-    $layout = $event->getValue('layout');
-    if (!$layout) {
-      // layout isn't being edited - no need to revalidate model
-      return;
-    }
-    if (is_string($layout)) {
-      // convert HTML => array to initialise FormDataModel
-      $layout = (new CRM_Afform_ArrayHtml())->convertHtmlToArray($layout);
-    }
-    $model = new FormDataModel($layout);
+  public function validateFormModel(AfformValidateEvent $event) {
+    $model = $event->getFormDataModel();
 
     // only validate forms this service cares about
     if (!$this->isActive($model)) {
@@ -99,16 +87,16 @@ class CreateContribution extends AutoService implements EventSubscriberInterface
       return;
     }
     if (count($contributions) > 1) {
-      throw new \CRM_Core_Exception(E::ts('Handling multiple contributions on the same form is not supported'));
+      $event->setError(E::ts('Handling multiple contributions on the same form is not supported'));
+      return;
     }
     $contribution = reset($contributions);
     if (count(array_filter($contribution['actions'])) !== 1) {
-      throw new \CRM_Core_Exception(E::ts('Contribution action should be create or update but not both.'));
+      $event->setError(E::ts('Contribution action should be create or update but not both.'));
+      return;
     }
 
-    // TODO 1: ensure at least one price field on the form
-
-    // TODO 2: if there is a price field anywhere on the form, ensure there is a Contribution entity
+    // TODO: check any entities with price fields are ordered *before* the contribution
   }
 
   public function validateLineItems(AfformValidateEvent $event) {
@@ -130,7 +118,7 @@ class CreateContribution extends AutoService implements EventSubscriberInterface
     // this catches cases when user must select one of a number of possible
     // price fields to provide line items, but no specific price field is required
     if (!$lineItems) {
-      $event->addError(E::ts('No line items for creating contribution'));
+      $event->setError(E::ts('No line items for creating contribution'));
       return;
     }
 
@@ -272,51 +260,6 @@ class CreateContribution extends AutoService implements EventSubscriberInterface
 
     // TODO: do we need to copy the first contribution as a template?
     // or will it be used anyway if no template contribution exists
-  }
-
-  public function onAfformEntitySort(AfformEntitySortEvent $e): void {
-    $formEntities = $e->getFormDataModel()->getEntities();
-
-    // see if there is a Contribution entity on the form
-    // NOTE: currently we expect max one Contribution entity
-    $contributionEntity = array_find_key($formEntities, fn ($details) => $details['type'] === 'Contribution');
-    if (!$contributionEntity) {
-      // if not, ignore
-      return;
-    }
-
-    foreach ($formEntities as $entity => $details) {
-      // no point adding depedency on itself
-      if ($entity === $contributionEntity) {
-        continue;
-      }
-      if ($this->afformEntityHasPriceField($details)) {
-        $e->addDependency($contributionEntity, $entity);
-      }
-    }
-  }
-
-  private function afformEntityHasPriceField(array $entityDetails): bool {
-    $entityType = $entityDetails['type'];
-    if (!$entityType) {
-      // skip things like 'extra'
-      return FALSE;
-    }
-
-    $priceFields = PriceFieldUtils::getPriceFieldsForEntity($entityType);
-
-    // if there are no price fields for this entity, then
-    if (!$priceFields) {
-      return FALSE;
-    }
-
-    if (\array_intersect_key($priceFields, $entityDetails['data'] ?? [])) {
-      return TRUE;
-    }
-    if (\array_intersect_key($priceFields, $entityDetails['fields'] ?? [])) {
-      return TRUE;
-    }
-    return FALSE;
   }
 
 }

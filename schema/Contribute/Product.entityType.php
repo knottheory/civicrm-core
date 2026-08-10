@@ -86,9 +86,6 @@ return [
     'price' => [
       'title' => ts('Price'),
       'sql_type' => 'decimal(20,2)',
-      'input_attrs' => [
-        'control_field' => 'currency',
-      ],
       'input_type' => NULL,
       'description' => ts('Sell price or market value for premiums. For tax-deductible contributions, this will be stored as non_deductible_amount in the contribution record.'),
       'add' => '1.4',
@@ -105,11 +102,6 @@ return [
       'default' => NULL,
       'input_attrs' => [
         'label' => ts('Currency'),
-      ],
-      'entity_reference' => [
-        'entity' => 'Currency',
-        'key' => 'name',
-        'on_delete' => 'SET NULL',
       ],
       'pseudoconstant' => [
         'table' => 'civicrm_currency',
@@ -144,9 +136,6 @@ return [
     'min_contribution' => [
       'title' => ts('Minimum Contribution'),
       'sql_type' => 'decimal(20,2)',
-      'input_attrs' => [
-        'control_field' => 'currency',
-      ],
       'input_type' => NULL,
       'description' => ts('Minimum contribution required to be eligible to select this premium.'),
       'add' => '1.4',
@@ -154,9 +143,6 @@ return [
     'cost' => [
       'title' => ts('Cost'),
       'sql_type' => 'decimal(20,2)',
-      'input_attrs' => [
-        'control_field' => 'currency',
-      ],
       'input_type' => NULL,
       'description' => ts('Actual cost of this product. Useful to determine net return from sale or using this as an incentive.'),
       'add' => '1.4',

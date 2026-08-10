@@ -1,7 +1,5 @@
 <?php
 
-use Civi\Smarty;
-
 /**
  * Class CRM_Core_CodeGen_Util_Template
  */

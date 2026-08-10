@@ -112,19 +112,19 @@ return [
             [
               'type' => 'field',
               'key' => 'frontend_title',
-              'label' => 'Group',
+              'label' => E::ts('Group'),
               'sortable' => TRUE,
             ],
             [
               'type' => 'field',
               'key' => 'Group_GroupContact_Contact_01.status:label',
-              'label' => 'Status',
+              'label' => E::ts('Status'),
               'sortable' => TRUE,
             ],
             [
               'type' => 'field',
               'key' => 'MAX_Group_SubscriptionHistory_group_id_01_date',
-              'label' => 'Since',
+              'label' => E::ts('Since'),
               'sortable' => TRUE,
             ],
           ],
@@ -145,7 +145,7 @@ return [
           'toolbar' => [
             [
               'entity' => '',
-              'text' => 'Manage Group Subscriptions',
+              'text' => E::ts('Manage Group Subscriptions'),
               'icon' => 'fa-external-link',
               'target' => 'crm-popup',
               'action' => '',

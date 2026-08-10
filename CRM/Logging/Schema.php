@@ -9,8 +9,6 @@
  +--------------------------------------------------------------------+
  */
 
-use Civi\Core\Exception\DBQueryException;
-
 /**
  *
  * @package CRM
@@ -53,7 +51,7 @@ class CRM_Logging_Schema {
    */
   private $exceptions = [
     'civicrm_job' => ['last_run', 'last_run_end'],
-    'civicrm_group' => ['cache_date', 'refresh_date', 'cache_fill_took'],
+    'civicrm_group' => ['cache_date', 'refresh_date'],
   ];
 
   /**
@@ -630,17 +628,11 @@ AND    (TABLE_NAME LIKE 'log_civicrm_%' $nonStandardTableNameString )
   private function columnsOf($table, $force = FALSE) {
     if ($force || !isset(\Civi::$statics[__CLASS__]['columnsOf'][$table])) {
       $from = (substr($table, 0, 4) == 'log_') ? "`{$this->db}`.$table" : $table;
-      \Civi::$statics[__CLASS__]['columnsOf'][$table] = [];
-      try {
-        $dao = CRM_Core_DAO::executeQuery("SHOW COLUMNS FROM $from", [], TRUE, NULL, FALSE, FALSE);
-      }
-      catch (DBQueryException $e) {
-        return [];
-      }
+      $dao = CRM_Core_DAO::executeQuery("SHOW COLUMNS FROM $from", [], TRUE, NULL, FALSE, FALSE);
       if (is_a($dao, 'DB_Error')) {
-        // This should be unreachable - we expect an exception to be thrown per above.
         return [];
       }
+      \Civi::$statics[__CLASS__]['columnsOf'][$table] = [];
       while ($dao->fetch()) {
         \Civi::$statics[__CLASS__]['columnsOf'][$table][] = CRM_Utils_Type::escape($dao->Field, 'MysqlColumnNameOrAlias');
       }
@@ -806,18 +798,8 @@ WHERE  table_schema IN ('{$this->db}', '{$civiDB}')";
    *
    * @param string $table
    */
-  private function createLogTableFor(string $table): void {
-    try {
-      $dao = CRM_Core_DAO::executeQuery("SHOW CREATE TABLE $table", [], TRUE, NULL, FALSE, FALSE);
-    }
-    catch (DBQueryException $e) {
-      if ($e->getSQLErrorCode() === 1146) {
-        // This would happen if an extension was registering a log table where the main table is deleted.
-        \Civi::log()->warning('Could not create log table for non-existent table ' . $table);
-        unset($this->tables[$table]);
-        return;
-      }
-    }
+  private function createLogTableFor($table) {
+    $dao = CRM_Core_DAO::executeQuery("SHOW CREATE TABLE $table", [], TRUE, NULL, FALSE, FALSE);
     $dao->fetch();
     $query = $dao->Create_Table;
 
@@ -994,6 +976,8 @@ COLS;
         $tableExceptions = array_key_exists('exceptions', $this->logTableSpec[$table]) ? $this->logTableSpec[$table]['exceptions'] : [];
         // ignore modified_date changes
         $tableExceptions[] = 'modified_date';
+        // Ignore cache_fill_took column on civicrm_group.
+        $tableExceptions[] = 'cache_fill_took';
         // exceptions may be provided with or without backticks
         $excludeColumn = in_array($column, $tableExceptions) ||
           in_array(str_replace('`', '', $column), $tableExceptions);

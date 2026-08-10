@@ -2,7 +2,7 @@
   "use strict";
 
   // Trait shared by any search display controllers which allow sorting
-  angular.module('crmSearchDisplay').factory('searchDisplayEditableTrait', function(crmApi4, crmStatus, $timeout) {
+  angular.module('crmSearchDisplay').factory('searchDisplayEditableTrait', function(crmApi4, crmStatus) {
 
     // Trait properties get mixed into display controller using angular.extend()
     return {
@@ -13,16 +13,13 @@
         this.cancelEditing();
       }],
 
-      startEditing: function(row, colIndex, $clickEvent) {
+      startEditing: function(row, colIndex) {
         if (this.editing === false && row.columns[colIndex].edit) {
           this.editValues = {};
           this.editing = row.key;
           row.columns.forEach((col, index) => {
             col.editing = (index === colIndex || (this.settings.editableRow && this.settings.editableRow.full));
             col.focused = index === colIndex;
-            if (col.editing) {
-              col.widthBeforeEdit = $clickEvent.target.offsetWidth;
-            }
           });
         }
       },
@@ -77,13 +74,8 @@
           _.defaults(result[0].data, row.data);
           // Ensure cssClass gets updated
           delete (row.cssClass);
-          // Preserve top-leel items like collapsed
-          _.defaults(result[0], row);
-          // Delete and re-insert the row.
-          this.results.splice(rowIndex, 1);
-          // Wait a tick to force Angular to update the DOM.
-          // This prevents the one-time bindings in `field.html` from getting "stuck" with the old values.
-          $timeout(() => this.results.splice(rowIndex, 0, result[0]));
+          // Note that extend() will preserve top-level items like 'collapsed' while replacing columns and data
+          angular.extend(row, result[0]);
         }
         // Or it's possible that the update caused this row to no longer match filters, in which case do a full refresh
         else {

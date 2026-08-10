@@ -17,7 +17,7 @@ class GetTemplateFields extends \Civi\Api4\Generic\BasicGetAction {
    * @var string
    * @required
    */
-  protected $workflow;
+  public $workflow;
 
   /**
    * Controls the return format.

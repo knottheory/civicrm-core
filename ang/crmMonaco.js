@@ -1,4 +1,3 @@
-/* global require, monaco */
 (function(angular, $, _) {
   angular.module('crmMonaco', CRM.angRequires('crmMonaco'));
 

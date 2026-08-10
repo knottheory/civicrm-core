@@ -45,11 +45,6 @@ class SKEntityGenerator {
     }
     $apiParams['select'] = $select;
     $api = Request::create($realEntity, 'get', $apiParams);
-
-    // Note: entity display queries run without permission checks.
-    // Therefore, only super-admins are allowed to create them.
-    $api->setCheckPermissions(FALSE);
-
     $query = new Api4SelectQuery($api);
     $query->forceSelectId = FALSE;
     $sql = $query->getSql();

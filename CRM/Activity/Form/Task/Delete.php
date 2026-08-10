@@ -10,26 +10,69 @@
  */
 
 /**
- * This class provides the functionality to delete a group of Activities.
+ *
+ * @package CRM
+ * @copyright CiviCRM LLC https://civicrm.org/licensing
+ */
+
+/**
+ * This class provides the functionality to delete a group of
+ * Activities. This class provides functionality for the actual
+ * deletion.
  */
 class CRM_Activity_Form_Task_Delete extends CRM_Activity_Form_Task {
 
-  use CRM_Core_Form_Task_DeleteTrait;
+  /**
+   * Are we operating in "single mode", i.e. deleting one
+   * specific Activity?
+   *
+   * @var bool
+   */
+  protected $_single = FALSE;
 
   /**
    * @var bool
    */
   public $submitOnce = TRUE;
 
-  protected function getIDs(): array {
-    return $this->_activityHolderIds ?? [];
+  /**
+   * Build all the data structures needed to build the form.
+   */
+  public function preProcess() {
+    parent::preProcess();
   }
 
-  protected function deleteRecord($id): bool {
-    $activityId = is_array($id) ? ($id['id'] ?? reset($id)) : $id;
-    $params = ['id' => $activityId];
-    $moveToTrash = CRM_Case_BAO_Case::isCaseActivity($activityId);
-    return (bool) CRM_Activity_BAO_Activity::deleteActivity($params, $moveToTrash);
+  /**
+   * Build the form object.
+   */
+  public function buildQuickForm() {
+    CRM_Utils_System::setTitle(ts('Delete Activities'));
+    $this->addDefaultButtons(ts('Delete Activities'), 'done');
+  }
+
+  /**
+   * Process the form after the input has been submitted and validated.
+   */
+  public function postProcess() {
+    $deleted = $failed = 0;
+    foreach ($this->_activityHolderIds as $activityId['id']) {
+      $moveToTrash = CRM_Case_BAO_Case::isCaseActivity($activityId['id']);
+      if (CRM_Activity_BAO_Activity::deleteActivity($activityId, $moveToTrash)) {
+        $deleted++;
+      }
+      else {
+        $failed++;
+      }
+    }
+
+    if ($deleted) {
+      $msg = ts('%count activity deleted.', ['plural' => '%count activities deleted.', 'count' => $deleted]);
+      CRM_Core_Session::setStatus($msg, ts('Removed'), 'success');
+    }
+
+    if ($failed) {
+      CRM_Core_Session::setStatus(ts('1 could not be deleted.', ['plural' => '%count could not be deleted.', 'count' => $failed]), ts('Error'), 'error');
+    }
   }
 
 }

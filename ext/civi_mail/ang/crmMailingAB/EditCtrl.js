@@ -105,7 +105,8 @@
     };
 
     $scope.leave = function leave() {
-      window.location = CRM.url('civicrm/mailing/abtest');
+      $location.path('abtest');
+      $location.replace();
     };
 
     $scope.selectWinner = function selectWinner(mailingName) {

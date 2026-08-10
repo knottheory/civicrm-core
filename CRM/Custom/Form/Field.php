@@ -56,10 +56,6 @@ class CRM_Custom_Form_Field extends CRM_Core_Form {
 
   private static $htmlTypesWithMandatorySerialize = ['CheckBox'];
 
-  private static $dataTypesWithoutSerialize = ['EntityReference', 'Currency'];
-
-  private static $dataTypesWithoutOptionGroup = ['Boolean', 'Country', 'StateProvince', 'ContactReference', 'EntityReference', 'Currency'];
-
   /**
    * Maps each data_type to allowed html_type options
    *
@@ -75,7 +71,6 @@ class CRM_Custom_Form_Field extends CRM_Core_Form {
     'Boolean' => ['Toggle', 'Radio'],
     'StateProvince' => ['Select'],
     'Country' => ['Select'],
-    'Currency' => ['Select'],
     'File' => ['File'],
     'Link' => ['Link'],
     'ContactReference' => ['Autocomplete-Select'],
@@ -94,7 +89,6 @@ class CRM_Custom_Form_Field extends CRM_Core_Form {
     $this->assign('dataToHTML', self::$_dataToHTML);
     $this->assign('htmlTypesWithOptionalSerialize', self::$htmlTypesWithOptionalSerialize);
     $this->assign('htmlTypesWithMandatorySerialize', self::$htmlTypesWithMandatorySerialize);
-    $this->assign('dataTypesWithoutSerialize', self::$dataTypesWithoutSerialize);
 
     $this->_values = [];
     //get the values form db if update.
@@ -165,10 +159,6 @@ class CRM_Custom_Form_Field extends CRM_Core_Form {
           }
         }
         $defaults['filter_selected'] = $contactRefFilter;
-      }
-
-      if ($defaults['data_type'] == 'EntityReference' && !empty($defaults['attributes'])) {
-        $defaults['placeholder'] = CRM_Core_BAO_CustomField::attributesFromString($defaults['attributes'])['placeholder'] ?? NULL;
       }
 
       $defaults['option_type'] = 2;
@@ -247,17 +237,6 @@ class CRM_Custom_Form_Field extends CRM_Core_Form {
 
     $this->addToggle('serialize', ts('Multi-Select'));
 
-    // Fetch currency options for entity
-    $extends = CRM_Core_DAO::getFieldValue('CRM_Core_DAO_CustomGroup', $this->_gid, 'extends');
-    $currencyOptions = civicrm_api4($extends, 'getFields', [
-      'checkPermissions' => FALSE,
-      'where' => [
-        ['fk_entity', '=', 'Currency'],
-      ],
-    ])->column('title', 'name');
-
-    $this->add('select', 'control_field', ts('Currency Field'), ['' => ts('None (Site Default)')] + $currencyOptions);
-
     $this->addAutocomplete('fk_entity', ts('Entity'), [
       'class' => 'twenty',
       // Don't allow entity to be changed once field is created
@@ -268,18 +247,11 @@ class CRM_Custom_Form_Field extends CRM_Core_Form {
 
     $this->addField('fk_entity_on_delete');
 
-    $this->add('text',
-      'placeholder',
-      ts('Placeholder'),
-      ['class' => 'twenty']
-    );
-
     $isUpdateAction = $this->_action == CRM_Core_Action::UPDATE;
     if ($isUpdateAction) {
       $this->freeze('data_type');
       if (!empty($this->_values['option_group_id'])) {
         $this->assign('hasOptionGroup', in_array($this->_values['html_type'], self::$htmlTypesWithOptions));
-        $this->assign('optionGroupId', $this->_values['option_group_id']);
         // Before dev/core#155 we didn't set the is_reserved flag properly, which should be handled by the upgrade script...
         //  but it is still possible that existing installs may have optiongroups linked to custom fields that are marked reserved.
         $optionGroupParams['id'] = $this->_values['option_group_id'];
@@ -651,16 +623,9 @@ SELECT count(*)
       }
     }
 
-    if ($dataType === 'EntityReference') {
-      if ($self->_action == CRM_Core_Action::ADD && empty($fields['fk_entity'])) {
+    if ($dataType === 'EntityReference' && $self->_action == CRM_Core_Action::ADD) {
+      if (empty($fields['fk_entity'])) {
         $errors['fk_entity'] = ts('Selecting an entity is required');
-      }
-      $filter = trim($fields['filter'] ?? '');
-      if (str_starts_with($filter, '[')) {
-        json_decode($filter);
-        if (json_last_error() !== JSON_ERROR_NONE) {
-          $errors['filter'] = ts('This does not look like valid JSON: %1', [1 => json_last_error_msg()]);
-        }
       }
     }
 
@@ -788,8 +753,8 @@ SELECT count(*)
         $_flagOption = $_emptyRow = 0;
       }
     }
-    elseif (in_array($htmlType, self::$htmlTypesWithOptions, TRUE) &&
-      !in_array($dataType, self::$dataTypesWithoutOptionGroup, TRUE)
+    elseif (in_array($htmlType, self::$htmlTypesWithOptions) &&
+      !in_array($dataType, ['Boolean', 'Country', 'StateProvince', 'ContactReference', 'EntityReference'])
     ) {
       if (!$fields['option_group_id']) {
         $errors['option_group_id'] = ts('You must select a Multiple Choice Option set if you chose Reuse an existing set.');
@@ -851,7 +816,7 @@ AND    option_group_id = %2";
 
     // If switching to a new option list, validate existing data
     if (empty($errors) && $self->_id && in_array($htmlType, self::$htmlTypesWithOptions) &&
-      !in_array($dataType, self::$dataTypesWithoutOptionGroup, TRUE)) {
+      !in_array($dataType, ['Boolean', 'Country', 'StateProvince', 'ContactReference', 'EntityReference'])) {
       $oldHtmlType = $self->_values['html_type'];
       $oldOptionGroup = $self->_values['option_group_id'];
       if ($oldHtmlType === 'Text' || $oldOptionGroup != $fields['option_group_id'] || $fields['option_type'] == 1) {
@@ -901,33 +866,16 @@ AND    option_group_id = %2";
     }
 
     $filter = 'null';
-    if (in_array($params['data_type'], ['ContactReference', 'EntityReference'])) {
-      $trimmedFilter = trim($params['filter'] ?? '');
-      if ($params['data_type'] === 'ContactReference' && !empty($params['filter_selected'])) {
-        if ($params['filter_selected'] == 'Advance' && $trimmedFilter) {
-          $filter = $trimmedFilter;
-        }
-        elseif ($params['filter_selected'] == 'Group' && !empty($params['group_id'])) {
-          $filter = 'action=lookup&group=' . implode(',', $params['group_id']);
-        }
+    if ($params['data_type'] == 'ContactReference' && !empty($params['filter_selected'])) {
+      if ($params['filter_selected'] == 'Advance' && trim($params['filter'] ?? '')) {
+        $filter = trim($params['filter']);
       }
-      elseif ($params['data_type'] === 'EntityReference') {
-        // EntityReference has no Group/Advance toggle - filter_selected is a ContactReference-only concept.
-        $filter = $trimmedFilter ?: NULL;
+      elseif ($params['filter_selected'] == 'Group' && !empty($params['group_id'])) {
+        $filter = 'action=lookup&group=' . implode(',', $params['group_id']);
       }
     }
-    $params['filter'] = $filter;
-
-    if ($params['data_type'] === 'EntityReference') {
-      // Merge the placeholder into 'attributes' without disturbing any other attributes already stored there.
-      $attributes = CRM_Core_BAO_CustomField::attributesFromString($this->_values['attributes'] ?? '');
-      if (!empty($params['placeholder'])) {
-        $attributes['placeholder'] = $params['placeholder'];
-      }
-      else {
-        unset($attributes['placeholder']);
-      }
-      $params['attributes'] = CRM_Core_BAO_CustomField::attributesToString($attributes);
+    if ($params['data_type'] !== 'EntityReference') {
+      $params['filter'] = $filter;
     }
 
     // fix for CRM-316

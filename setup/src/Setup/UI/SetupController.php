@@ -40,7 +40,7 @@ class SetupController implements SetupControllerInterface {
    */
   public function __construct(\Civi\Setup $setup) {
     $this->setup = $setup;
-    $this->blocks = [];
+    $this->blocks = array();
   }
 
   /**
@@ -50,7 +50,7 @@ class SetupController implements SetupControllerInterface {
    *   List of any HTTP GET/POST fields.
    * @return SetupResponse
    */
-  public function run($method, $fields = []) {
+  public function run($method, $fields = array()) {
     $this->setup->getDispatcher()->dispatch('civi.setupui.run', new UIBootEvent($this, $method, $fields));
     if (!$this->setup->checkAuthorized()->isAuthorized()) {
       return $this->createError("Not authorized to perform installation");
@@ -215,7 +215,7 @@ class SetupController implements SetupControllerInterface {
    *   Any variables that should be exported to the scope of the template.
    * @return string
    */
-  public function render($_tpl_file, $_tpl_params = []) {
+  public function render($_tpl_file, $_tpl_params = array()) {
     $_tpl_params = array_merge($this->getCommonTplVars(), $_tpl_params);
     extract($_tpl_params);
     ob_start();
@@ -298,7 +298,7 @@ class SetupController implements SetupControllerInterface {
         $block['class'],
         $this->render(
           $block['file'],
-          $_tpl_params + ['_tpl_block' => $block]
+          $_tpl_params + array('_tpl_block' => $block)
         )
       );
     }

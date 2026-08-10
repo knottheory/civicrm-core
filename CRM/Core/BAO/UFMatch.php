@@ -65,6 +65,7 @@ class CRM_Core_BAO_UFMatch extends CRM_Core_DAO_UFMatch {
     $session = CRM_Core_Session::singleton();
     if (!is_object($session)) {
       throw new CRM_Core_Exception('wow, session is not an object?');
+      return;
     }
 
     $userSystemID = $userSystem->getBestUFID($user);

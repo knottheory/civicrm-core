@@ -105,7 +105,7 @@
         {/if}
       {/if}
 
-     {if {contact.email|boolean}}
+     {if '{contact.email}'}
       <tr>
        <th {$headerStyle}>
         {ts}Registered Email{/ts}

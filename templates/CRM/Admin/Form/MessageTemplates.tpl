@@ -39,10 +39,12 @@
           </td>
         </tr>
         <tr>
-          <td class="label-left">{$form.msg_subject.label} {help id="id-token-subject" tplFile=$tplFile file="CRM/Contact/Form/Task/Email.hlp" title=$tokenTitle}</td>
+          <td class="label-left">{$form.msg_subject.label}</td>
           <td>
             {$form.msg_subject.html|crmAddClass:huge}
-            <input class="crm-token-selector big" data-field="msg_subject" /></td>
+            <input class="crm-token-selector big" data-field="msg_subject" />
+            {help id="id-token-subject" tplFile=$tplFile file="CRM/Contact/Form/Task/Email.hlp" title=$tokenTitle}
+          </td>
         </tr>
         <tr>
           <td class="label-left">{$form.file_id.label}</td>

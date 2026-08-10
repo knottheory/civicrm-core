@@ -9,12 +9,12 @@
  * Placeholder class retained for legacy compatibility.
  *
  * @property int|string|null $id
- * @property string $name
+ * @property string|null $name
  * @property string $title
- * @property string $extends
+ * @property string|null $extends
  * @property int|string|null $extends_entity_column_id
  * @property string|null $extends_entity_column_value
- * @property string $style
+ * @property string|null $style
  * @property bool|string $collapse_display
  * @property string|null $help_pre
  * @property string|null $help_post

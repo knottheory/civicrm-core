@@ -682,8 +682,12 @@ class CRM_Contact_Form_Contact extends CRM_Core_Form {
     }
 
     // street number should be digit + suffix, CRM-5450
-    $addressOptions = CRM_Core_BAO_Setting::valueOptions(CRM_Core_BAO_Setting::SYSTEM_PREFERENCES_NAME, 'address_options');
-    if (!empty($addressOptions['street_address_parsing'])) {
+    $parseStreetAddress = CRM_Utils_Array::value('street_address_parsing',
+      CRM_Core_BAO_Setting::valueOptions(CRM_Core_BAO_Setting::SYSTEM_PREFERENCES_NAME,
+        'address_options'
+      )
+    );
+    if ($parseStreetAddress) {
       if (isset($fields['address']) &&
         is_array($fields['address'])
       ) {

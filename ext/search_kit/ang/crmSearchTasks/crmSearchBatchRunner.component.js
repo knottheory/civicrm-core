@@ -33,7 +33,7 @@
       const EST_BATCH_TIME = 5;
 
       this.$onInit = function() {
-        if (ctrl.action === 'create' && !ctrl.idField) {
+        if (ctrl.action === 'create') {
           ctrl.ids = [0];
         }
         totalBatches = Math.ceil(ctrl.ids.length / BATCH_SIZE);
@@ -53,8 +53,7 @@
           ctrl.last = ctrl.ids.length;
         }
         const params = _.cloneDeep(ctrl.params);
-        if (ctrl.action === 'save' || (ctrl.action === 'create' && ctrl.idField)) {
-          actionName = 'save';
+        if (ctrl.action === 'save') {
           let originalRecords = params.records || [{}];
           // If "values" were passed instead of "records"
           if ('values' in params) {

@@ -1,11 +1,6 @@
 <?php
 use CRM_CivicrmAdminUi_ExtensionUtil as E;
 
-// Temporary check can be removed when moving this file to the civi_mail extension.
-if (!CRM_Core_Component::isEnabled('CiviMail')) {
-  return [];
-}
-
 return [
   [
     'name' => 'SavedSearch_Mailing_Click_throughs_Report',
@@ -90,7 +85,7 @@ return [
             [
               'type' => 'field',
               'key' => 'display_name',
-              'label' => 'Display Name',
+              'label' => E::ts('Display Name'),
               'sortable' => TRUE,
               'link' => [
                 'path' => '',
@@ -100,12 +95,12 @@ return [
                 'target' => '',
                 'task' => '',
               ],
-              'title' => 'View Contact',
+              'title' => E::ts('View Contact'),
             ],
             [
               'type' => 'field',
               'key' => 'GROUP_CONCAT_Contact_MailingEventQueue_contact_id_01_MailingEventQueue_MailingEventTrackableURLOpen_event_queue_id_01_MailingEventTrackableURLOpen_MailingTrackableURL_trackable_url_id_01_url',
-              'label' => 'URL',
+              'label' => E::ts('URL'),
               'sortable' => TRUE,
               'link' => [
                 'path' => '[GROUP_CONCAT_Contact_MailingEventQueue_contact_id_01_MailingEventQueue_MailingEventTrackableURLOpen_event_queue_id_01_MailingEventTrackableURLOpen_MailingTrackableURL_trackable_url_id_01_url]',
@@ -119,7 +114,7 @@ return [
             [
               'type' => 'field',
               'key' => 'GROUP_CONCAT_Contact_MailingEventQueue_contact_id_01_MailingEventQueue_MailingEventTrackableURLOpen_event_queue_id_01_time_stamp',
-              'label' => 'Date',
+              'label' => E::ts('Date'),
               'sortable' => TRUE,
             ],
           ],

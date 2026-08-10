@@ -1,11 +1,6 @@
 <?php
 use CRM_CivicrmAdminUi_ExtensionUtil as E;
 
-// Temporary check can be removed when moving this file to the civi_contribute extension.
-if (!CRM_Core_Component::isEnabled('CiviContribute')) {
-  return [];
-}
-
 return [
   [
     'name' => 'SavedSearch_Manage_Premiums',
@@ -72,49 +67,49 @@ return [
             [
               'type' => 'field',
               'key' => 'name',
-              'label' => 'Product Name',
+              'label' => E::ts('Product Name'),
               'sortable' => TRUE,
               'editable' => TRUE,
             ],
             [
               'type' => 'field',
               'key' => 'sku',
-              'label' => 'SKU',
+              'label' => E::ts('SKU'),
               'sortable' => TRUE,
               'editable' => TRUE,
             ],
             [
               'type' => 'field',
               'key' => 'price',
-              'label' => 'Price',
+              'label' => E::ts('Price'),
               'sortable' => TRUE,
               'editable' => TRUE,
             ],
             [
               'type' => 'field',
               'key' => 'min_contribution',
-              'label' => 'Minimum Contribution',
+              'label' => E::ts('Minimum Contribution'),
               'sortable' => TRUE,
               'editable' => TRUE,
             ],
             [
               'type' => 'field',
               'key' => 'cost',
-              'label' => 'Cost',
+              'label' => E::ts('Cost'),
               'sortable' => TRUE,
               'editable' => TRUE,
             ],
             [
               'type' => 'field',
               'key' => 'financial_type_id:label',
-              'label' => 'Financial Type',
+              'label' => E::ts('Financial Type'),
               'sortable' => TRUE,
               'editable' => TRUE,
             ],
             [
               'type' => 'field',
               'key' => 'is_active',
-              'label' => 'Enabled',
+              'label' => E::ts('Enabled'),
               'sortable' => TRUE,
               'editable' => TRUE,
             ],
@@ -130,7 +125,7 @@ return [
                   'join' => '',
                   'target' => 'crm-popup',
                   'icon' => 'fa-eye',
-                  'text' => 'Preview',
+                  'text' => E::ts('Preview'),
                   'style' => 'default',
                   'path' => '',
                   'task' => '',
@@ -142,7 +137,7 @@ return [
                   'join' => '',
                   'target' => 'crm-popup',
                   'icon' => 'fa-pencil',
-                  'text' => 'Edit',
+                  'text' => E::ts('Edit'),
                   'style' => 'default',
                   'path' => '',
                   'task' => '',
@@ -154,7 +149,7 @@ return [
                   'join' => '',
                   'target' => 'crm-popup',
                   'icon' => 'fa-toggle-on',
-                  'text' => 'Enable',
+                  'text' => E::ts('Enable'),
                   'style' => 'default',
                   'path' => '',
                   'action' => '',
@@ -166,7 +161,7 @@ return [
                   'join' => '',
                   'target' => 'crm-popup',
                   'icon' => 'fa-toggle-off',
-                  'text' => 'Disable',
+                  'text' => E::ts('Disable'),
                   'style' => 'default',
                   'path' => '',
                   'action' => '',
@@ -178,7 +173,7 @@ return [
                   'join' => '',
                   'target' => 'crm-popup',
                   'icon' => 'fa-trash',
-                  'text' => 'Delete',
+                  'text' => E::ts('Delete'),
                   'style' => 'danger',
                   'path' => '',
                   'task' => '',
@@ -207,7 +202,7 @@ return [
             [
               'path' => '',
               'icon' => 'fa-plus',
-              'text' => 'Add Product',
+              'text' => E::ts('Add Product'),
               'style' => 'primary',
               'condition' => [],
               'task' => '',

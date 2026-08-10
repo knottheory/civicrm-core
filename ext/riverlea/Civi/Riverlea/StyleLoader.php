@@ -116,15 +116,6 @@ class StyleLoader extends AutoService implements \Symfony\Component\EventDispatc
         // Variable needed by the previewer.js script.
         $bundle->addVars(E::LONG_NAME, ['resourceUrl' => E::url()]);
       }
-
-      if ($this->userControlsEnabled()) {
-        // Load the user controls
-        $bundle->addStyleFile('riverlea', 'elements/civi-riverlea-user-controls.css', ['weight' => 955]);
-        $bundle->addScriptFile('riverlea', 'elements/civi-riverlea-user-controls.js', [
-          'weight' => 960,
-          'translate' => FALSE,
-        ]);
-      }
     }
 
     if ($bundle->name === 'bootstrap3') {
@@ -186,8 +177,7 @@ class StyleLoader extends AutoService implements \Symfony\Component\EventDispatc
     $streamModified = $stream['modified_date'] ?? NULL;
 
     $isFrontend = \CRM_Utils_System::isFrontendPage();
-
-    $darkMode = $this->getCurrentDarkMode();
+    $darkMode = $isFrontend ? \Civi::settings()->get('riverlea_dark_mode_frontend') : \Civi::settings()->get('riverlea_dark_mode_backend');
 
     return [
       'stream' => $stream['name'],
@@ -195,15 +185,6 @@ class StyleLoader extends AutoService implements \Symfony\Component\EventDispatc
       'is_frontend' => $isFrontend,
       'dark_mode' => $darkMode,
     ];
-  }
-
-  public function getCurrentDarkMode(): string {
-    if ($this->userControlsEnabled()) {
-      // we need to inherit from the user controlled preference
-      return 'inherit';
-    }
-
-    return \CRM_Utils_System::isFrontendPage() ? \Civi::settings()->get('riverlea_dark_mode_frontend') : \Civi::settings()->get('riverlea_dark_mode_backend');
   }
 
   /**
@@ -214,7 +195,7 @@ class StyleLoader extends AutoService implements \Symfony\Component\EventDispatc
 
     // admins can preview other streams using a url param
     if (\CRM_Core_Permission::check('administer CiviCRM')) {
-      $streamOverride = \CRM_Utils_Request::retrieve('stream_override', 'String') ?? '';
+      $streamOverride = \CRM_Utils_Request::retrieve('stream_override', 'String');
       // check override is a valid key before using
       if (isset($streamMeta[$streamOverride])) {
         return $streamMeta[$streamOverride];
@@ -242,7 +223,6 @@ class StyleLoader extends AutoService implements \Symfony\Component\EventDispatc
     $render = \Civi\Api4\RiverleaStream::render(FALSE)
       ->addWhere('name', '=', $e->params['stream'])
       ->setIsFrontend($e->params['is_frontend'])
-      ->setDarkMode($e->params['dark_mode'])
       ->execute()
       ->first();
 
@@ -282,16 +262,6 @@ class StyleLoader extends AutoService implements \Symfony\Component\EventDispatc
           ->execute();
       }
     }
-  }
-
-  /**
-   * Is the backend dark-mode toggle enabled in theme settings?
-   */
-  private function userControlsEnabled(): bool {
-    if (!\CRM_Utils_System::isFrontendPage()) {
-      return !!\Civi::settings()->get('riverlea_user_controls_backend');
-    }
-    return FALSE;
   }
 
 }

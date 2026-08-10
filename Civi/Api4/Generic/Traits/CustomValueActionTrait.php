@@ -113,7 +113,7 @@ trait CustomValueActionTrait {
    */
   protected function fillDefaults(&$params) {
     foreach ($this->entityFields() as $name => $field) {
-      if (isset($field['default_value']) && !FormattingUtil::hasField($name, $params)) {
+      if (!isset($params[$name]) && isset($field['default_value'])) {
         $params[$name] = $field['default_value'];
       }
     }

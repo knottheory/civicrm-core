@@ -92,6 +92,10 @@ class CRM_Admin_Form_Setting_Localization extends CRM_Admin_Form_Generic {
         $attributes['disabled'] = 'disabled';
         $this->sections['multi']['description'] = ts("In order to use this functionality, the installation's database user must have privileges to create triggers and views (if binary logging is enabled – this means the SUPER privilege). This install does not have the required privilege(s) enabled.");
       }
+      elseif (Civi::settings()->get('logging')) {
+        $attributes['disabled'] = 'disabled';
+        $this->sections['multi']['description'] = ts("(Multilingual support currently cannot be enabled on installations with enabled logging.)");
+      }
       else {
         $this->sections['multi']['description'] = ts("Check this box and click 'Save' to switch this installation from single- to multi-language, then add further languages.");
       }
@@ -243,22 +247,20 @@ class CRM_Admin_Form_Setting_Localization extends CRM_Admin_Form_Generic {
    * @throws \CRM_Core_Exception
    */
   public static function updateEnabledCurrencies(array $currencies, string $default): void {
+
+    // sort so that when we display drop down, weights have right value
+    sort($currencies);
+    // get labels for all the currencies
     $options = [];
 
-    $currencyDetails = \Civi\Api4\Currency::get(FALSE)
-      ->addWhere('name', 'IN', $currencies)
-      ->addSelect('name', 'full_name')
-      ->addSelect('IFNULL(CONCAT(name, " (", symbol, ")"), name) AS name_and_symbol')
-      ->addOrderBy('name', 'ASC')
-      ->execute();
-
-    foreach ($currencyDetails as $i => $currency) {
+    $currencySymbols = self::getCurrencySymbols();
+    foreach ($currencies as $i => $currency) {
       $options[] = [
-        'label' => $currency['name_and_symbol'],
-        'value' => $currency['name'],
+        'label' => $currencySymbols[$currency],
+        'value' => $currency,
         'weight' => $i + 1,
-        'description' => $currency['full_name'],
-        'is_default' => $currency['name'] === $default,
+        'is_active' => 1,
+        'is_default' => $currency === $default,
       ];
     }
     $optionGroupID = OptionGroup::get(FALSE)->addSelect('id')

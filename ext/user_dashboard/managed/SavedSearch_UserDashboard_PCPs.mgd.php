@@ -75,19 +75,19 @@ return [
             [
               'type' => 'field',
               'key' => 'title',
-              'label' => 'Title',
+              'label' => E::ts('Title'),
               'sortable' => TRUE,
             ],
             [
               'type' => 'field',
               'key' => 'status_id:label',
-              'label' => 'Type',
+              'label' => E::ts('Type'),
               'sortable' => TRUE,
             ],
             [
               'type' => 'field',
               'key' => 'PCP_ContributionPage_page_id_01.frontend_title',
-              'label' => 'Campaign',
+              'label' => E::ts('Campaign'),
               'sortable' => TRUE,
             ],
           ],

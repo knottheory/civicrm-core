@@ -67,25 +67,25 @@ return [
             [
               'type' => 'field',
               'key' => 'label',
-              'label' => 'Name',
+              'label' => E::ts('Name'),
               'sortable' => TRUE,
             ],
             [
               'type' => 'field',
               'key' => 'grouping',
-              'label' => 'Grouping',
+              'label' => E::ts('Grouping'),
               'sortable' => TRUE,
             ],
             [
               'type' => 'field',
               'key' => 'is_reserved',
-              'label' => 'Reserved',
+              'label' => E::ts('Reserved'),
               'sortable' => TRUE,
             ],
             [
               'type' => 'field',
               'key' => 'is_default',
-              'label' => 'Default',
+              'label' => E::ts('Default'),
               'sortable' => TRUE,
               'rewrite' => '[none]',
               'icons' => [
@@ -108,7 +108,7 @@ return [
                   'join' => '',
                   'target' => 'crm-popup',
                   'icon' => 'fa-pencil',
-                  'text' => 'Edit',
+                  'text' => E::ts('Edit'),
                   'style' => 'default',
                   'path' => 'civicrm/admin/labelFormats/edit?action=update&id=[id]&group=[option_group_id:name]&reset=1',
                   'task' => '',
@@ -120,7 +120,7 @@ return [
                   'join' => '',
                   'target' => 'crm-popup',
                   'icon' => 'fa-clone',
-                  'text' => 'Copy',
+                  'text' => E::ts('Copy'),
                   'style' => 'default',
                   'path' => 'civicrm/admin/labelFormats/edit?action=copy&id=[id]&group=[option_group_id:name]&reset=1',
                   'task' => '',
@@ -129,7 +129,7 @@ return [
                 [
                   'path' => 'civicrm/admin/labelFormats/edit?action=delete&id=[id]&group=[option_group_id:name]&reset=1',
                   'icon' => 'fa-trash-o',
-                  'text' => 'Delete',
+                  'text' => E::ts('Delete'),
                   'style' => 'danger',
                   'condition' => [
                     'is_reserved',
@@ -158,7 +158,7 @@ return [
             [
               'path' => 'civicrm/admin/labelFormats/edit?action=add&group=[option_group_id:name]&reset=1',
               'icon' => 'fa-plus',
-              'text' => 'Add',
+              'text' => E::ts('Add'),
               'style' => 'default',
               'condition' => [],
               'task' => '',

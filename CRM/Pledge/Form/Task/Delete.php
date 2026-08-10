@@ -10,22 +10,66 @@
  */
 
 /**
- * This class provides the functionality to delete a group of pledges.
+ *
+ * @package CRM
+ * @copyright CiviCRM LLC https://civicrm.org/licensing
+ */
+
+/**
+ * This class provides the functionality to delete a group of
+ * participations. This class provides functionality for the actual
+ * deletion.
  */
 class CRM_Pledge_Form_Task_Delete extends CRM_Pledge_Form_Task {
 
-  use CRM_Core_Form_Task_DeleteTrait;
+  /**
+   * Are we operating in "single mode", i.e. deleting one
+   * specific pledge?
+   *
+   * @var bool
+   */
+  protected $_single = FALSE;
 
-  protected function getPermissionModule(): string {
-    return 'CiviPledge';
+  /**
+   * Build all the data structures needed to build the form.
+   */
+  public function preProcess() {
+    //check for delete
+    if (!CRM_Core_Permission::checkActionPermission('CiviPledge', CRM_Core_Action::DELETE)) {
+      CRM_Core_Error::statusBounce(ts('You do not have permission to access this page.'));
+    }
+    parent::preProcess();
   }
 
-  protected function getIDs(): array {
-    return $this->_pledgeIds ?? [];
+  /**
+   * Build the form object.
+   */
+  public function buildQuickForm() {
+    $this->addDefaultButtons(ts('Delete Pledges'), 'done');
   }
 
-  protected function deleteRecord($id): bool {
-    return (bool) CRM_Pledge_BAO_Pledge::deletePledge($id);
+  /**
+   * Process the form after the input has been submitted and validated.
+   */
+  public function postProcess() {
+    $deleted = $failed = 0;
+    foreach ($this->_pledgeIds as $pledgeId) {
+      if (CRM_Pledge_BAO_Pledge::deletePledge($pledgeId)) {
+        $deleted++;
+      }
+      else {
+        $failed++;
+      }
+    }
+
+    if ($deleted) {
+      $msg = ts('%count pledge deleted.', ['plural' => '%count pledges deleted.', 'count' => $deleted]);
+      CRM_Core_Session::setStatus($msg, ts('Removed'), 'success');
+    }
+
+    if ($failed) {
+      CRM_Core_Session::setStatus(ts('1 could not be deleted.', ['plural' => '%count could not be deleted.', 'count' => $failed]), ts('Error'), 'error');
+    }
   }
 
 }

@@ -11,15 +11,6 @@ return [
     'log' => TRUE,
     'add' => '1.7',
   ],
-  'getIndices' => fn() => [
-    'UI_name' => [
-      'fields' => [
-        'name' => TRUE,
-      ],
-      'unique' => TRUE,
-      'add' => '6.18',
-    ],
-  ],
   'getFields' => fn() => [
     'id' => [
       'title' => ts('Currency ID'),

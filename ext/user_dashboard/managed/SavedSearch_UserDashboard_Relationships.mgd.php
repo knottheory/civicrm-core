@@ -71,13 +71,13 @@ return [
             [
               'type' => 'field',
               'key' => 'near_relation:label',
-              'label' => 'Relationship',
+              'label' => E::ts('Relationship'),
               'sortable' => TRUE,
             ],
             [
               'type' => 'field',
               'key' => 'RelationshipCache_Contact_far_contact_id_01.display_name',
-              'label' => 'With',
+              'label' => E::ts('With'),
               'sortable' => TRUE,
               'icons' => [
                 [
@@ -93,31 +93,31 @@ return [
             [
               'type' => 'field',
               'key' => 'start_date',
-              'label' => 'Since',
+              'label' => E::ts('Since'),
               'sortable' => TRUE,
             ],
             [
               'type' => 'field',
               'key' => 'RelationshipCache_Contact_far_contact_id_01.address_primary.city',
-              'label' => 'City',
+              'label' => E::ts('City'),
               'sortable' => TRUE,
             ],
             [
               'type' => 'field',
               'key' => 'RelationshipCache_Contact_far_contact_id_01.address_primary.state_province_id:label',
-              'label' => 'State/Prov',
+              'label' => E::ts('State/Prov'),
               'sortable' => TRUE,
             ],
             [
               'type' => 'field',
               'key' => 'RelationshipCache_Contact_far_contact_id_01.email_primary.email',
-              'label' => 'Email',
+              'label' => E::ts('Email'),
               'sortable' => TRUE,
             ],
             [
               'type' => 'field',
               'key' => 'RelationshipCache_Contact_far_contact_id_01.phone_primary.phone',
-              'label' => 'Phone',
+              'label' => E::ts('Phone'),
               'sortable' => TRUE,
             ],
           ],

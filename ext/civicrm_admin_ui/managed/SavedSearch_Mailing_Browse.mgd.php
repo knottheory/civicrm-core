@@ -23,14 +23,14 @@ $columns = [
   [
     'type' => 'field',
     'key' => 'name',
-    'label' => 'Mailing Name',
+    'label' => E::ts('Mailing Name'),
     'sortable' => TRUE,
     'icons' => [],
   ],
   [
     'type' => 'field',
     'key' => 'status:label',
-    'label' => 'Status',
+    'label' => E::ts('Status'),
     'sortable' => TRUE,
     'icons' => [],
     'cssRules' => [],
@@ -51,37 +51,37 @@ $columns = array_merge($columns, [
   [
     'type' => 'field',
     'key' => 'created_id.display_name',
-    'label' => 'Created By',
+    'label' => E::ts('Created By'),
     'sortable' => TRUE,
   ],
   [
     'type' => 'field',
     'key' => 'created_date',
-    'label' => 'Created Date',
+    'label' => E::ts('Created Date'),
     'sortable' => TRUE,
   ],
   [
     'type' => 'field',
     'key' => 'scheduled_id.display_name',
-    'label' => 'Sent By',
+    'label' => E::ts('Sent By'),
     'sortable' => TRUE,
   ],
   [
     'type' => 'field',
     'key' => 'MIN_Mailing_MailingJob_mailing_id_01_scheduled_date',
-    'label' => 'Scheduled',
+    'label' => E::ts('Scheduled'),
     'sortable' => TRUE,
   ],
   [
     'type' => 'field',
     'key' => 'MIN_Mailing_MailingJob_mailing_id_01_start_date',
-    'label' => 'Started',
+    'label' => E::ts('Started'),
     'sortable' => TRUE,
   ],
   [
     'type' => 'field',
     'key' => 'MAX_Mailing_MailingJob_mailing_id_01_end_date',
-    'label' => 'Completed',
+    'label' => E::ts('Completed'),
     'sortable' => TRUE,
   ],
 ]);
@@ -112,7 +112,7 @@ $columns = array_merge($columns, [
         'join' => '',
         'target' => '',
         'icon' => 'fa-pencil',
-        'text' => 'Continue',
+        'text' => E::ts('Continue'),
         'style' => 'default',
         'path' => '',
         'condition' => [
@@ -123,7 +123,7 @@ $columns = array_merge($columns, [
       ],
       [
         'icon' => 'fa-clone',
-        'text' => 'Copy',
+        'text' => E::ts('Copy'),
         'style' => 'default',
         'condition' => [
           'status:name',
@@ -141,7 +141,7 @@ $columns = array_merge($columns, [
         'join' => '',
         'target' => 'crm-popup',
         'icon' => 'fa-bar-chart',
-        'text' => 'Report',
+        'text' => E::ts('Report'),
         'style' => 'default',
         'path' => '',
         'condition' => [],
@@ -149,7 +149,7 @@ $columns = array_merge($columns, [
       [
         'path' => 'civicrm/mailing/action?action=reopen&mid=[id]&reset=1',
         'icon' => 'fa-play',
-        'text' => 'Resume',
+        'text' => E::ts('Resume'),
         'style' => 'default',
         'condition' => [
           'status:name',
@@ -164,7 +164,7 @@ $columns = array_merge($columns, [
       [
         'path' => 'civicrm/mailing/action?action=disable&mid=[id]&reset=1',
         'icon' => 'fa-ban',
-        'text' => 'Cancel',
+        'text' => E::ts('Cancel'),
         'style' => 'default',
         'condition' => [
           'status:name',
@@ -182,7 +182,7 @@ $columns = array_merge($columns, [
         'join' => '',
         'target' => 'crm-popup',
         'icon' => 'fa-eye',
-        'text' => 'Preview Mailing',
+        'text' => E::ts('Preview Mailing'),
         'style' => 'default',
         'path' => '',
         'condition' => [],
@@ -190,7 +190,7 @@ $columns = array_merge($columns, [
       [
         'path' => 'civicrm/mailing/action?action=close&mid=[id]&reset=1',
         'icon' => 'fa-pause',
-        'text' => 'Pause',
+        'text' => E::ts('Pause'),
         'style' => 'default',
         'condition' => [
           'status:name',
@@ -205,7 +205,7 @@ $columns = array_merge($columns, [
       [
         'path' => 'civicrm/mailing/action?action=disable&mid=[id]&reset=1',
         'icon' => 'fa-ban',
-        'text' => 'Cancel',
+        'text' => E::ts('Cancel'),
         'style' => 'default',
         'condition' => [
           'status:name',
@@ -223,7 +223,7 @@ $columns = array_merge($columns, [
         'join' => '',
         'target' => 'crm-popup',
         'icon' => 'fa-trash',
-        'text' => 'Delete',
+        'text' => E::ts('Delete'),
         'style' => 'danger',
         'condition' => [],
       ],
@@ -328,7 +328,7 @@ return [
             [
               'entity' => 'Mailing',
               'action' => 'add',
-              'text' => 'Add Mailing',
+              'text' => E::ts('Add Mailing'),
               'icon' => 'fa-plus',
               'style' => 'primary',
               'target' => '',

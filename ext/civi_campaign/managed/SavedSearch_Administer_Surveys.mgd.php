@@ -79,21 +79,21 @@ return [
             [
               'type' => 'field',
               'key' => 'title',
-              'label' => 'Title',
+              'label' => E::ts('Title'),
               'sortable' => TRUE,
               'editable' => TRUE,
             ],
             [
               'type' => 'field',
               'key' => 'campaign_id:label',
-              'label' => 'Survey',
+              'label' => E::ts('Survey'),
               'sortable' => TRUE,
               'editable' => TRUE,
             ],
             [
               'type' => 'field',
               'key' => 'activity_type_id:label',
-              'label' => 'Type',
+              'label' => E::ts('Type'),
               'sortable' => TRUE,
               'editable' => TRUE,
               'icons' => [
@@ -106,7 +106,7 @@ return [
             [
               'type' => 'field',
               'key' => 'release_frequency',
-              'label' => 'Release Frequency',
+              'label' => E::ts('Release Frequency'),
               'sortable' => TRUE,
               'empty_value' => '',
               'rewrite' => '[release_frequency] Days',
@@ -114,19 +114,19 @@ return [
             [
               'type' => 'field',
               'key' => 'default_number_of_contacts',
-              'label' => 'Reserve Each Time',
+              'label' => E::ts('Reserve Each Time'),
               'sortable' => TRUE,
             ],
             [
               'type' => 'field',
               'key' => 'max_number_of_contacts',
-              'label' => 'Total Reserve',
+              'label' => E::ts('Total Reserve'),
               'sortable' => TRUE,
             ],
             [
               'type' => 'field',
               'key' => 'result_id:label',
-              'label' => 'Result Set',
+              'label' => E::ts('Result Set'),
               'sortable' => TRUE,
               'link' => [
                 'path' => 'civicrm/survey/option-group#?option_group_id=[result_id]',
@@ -135,7 +135,7 @@ return [
                 'join' => '',
                 'target' => 'crm-popup',
               ],
-              'empty_value' => 'Incomplete',
+              'empty_value' => E::ts('Incomplete'),
               'cssRules' => [
                 [
                   'bg-danger',
@@ -143,13 +143,13 @@ return [
                   'IS EMPTY',
                 ],
               ],
-              'rewrite' => 'View Options',
+              'rewrite' => E::ts('View Options'),
               'icons' => [],
             ],
             [
               'type' => 'field',
               'key' => 'is_default',
-              'label' => 'Default',
+              'label' => E::ts('Default'),
               'sortable' => TRUE,
               'rewrite' => ' ',
               'icons' => [
@@ -167,7 +167,7 @@ return [
             [
               'type' => 'field',
               'key' => 'is_active',
-              'label' => 'Enabled',
+              'label' => E::ts('Enabled'),
               'sortable' => TRUE,
             ],
             [
@@ -176,7 +176,7 @@ return [
                 [
                   'path' => '',
                   'icon' => 'fa-pencil',
-                  'text' => 'Edit',
+                  'text' => E::ts('Edit'),
                   'style' => 'default',
                   'condition' => [],
                   'entity' => 'Survey',
@@ -189,7 +189,7 @@ return [
                   'entity' => 'Survey',
                   'target' => 'crm-popup',
                   'icon' => 'fa-toggle-on',
-                  'text' => 'Enable',
+                  'text' => E::ts('Enable'),
                   'style' => 'default',
                   'condition' => [],
                 ],
@@ -198,7 +198,7 @@ return [
                   'entity' => 'Survey',
                   'target' => 'crm-popup',
                   'icon' => 'fa-toggle-off',
-                  'text' => 'Disable',
+                  'text' => E::ts('Disable'),
                   'style' => 'default',
                   'condition' => [],
                 ],
@@ -208,7 +208,7 @@ return [
                   'join' => '',
                   'target' => 'crm-popup',
                   'icon' => 'fa-trash',
-                  'text' => 'Delete',
+                  'text' => E::ts('Delete'),
                   'style' => 'danger small-popup',
                   'path' => '',
                   'condition' => [],
@@ -218,7 +218,7 @@ return [
               'alignment' => 'text-right',
             ],
             [
-              'text' => 'Respondents',
+              'text' => E::ts('Respondents'),
               'style' => 'default',
               'size' => 'btn-xs',
               'icon' => 'fa-bars',
@@ -231,7 +231,7 @@ return [
                   'join' => '',
                   'target' => '_blank',
                   'icon' => 'fa-user-plus',
-                  'text' => 'Reserve',
+                  'text' => E::ts('Reserve'),
                   'style' => 'default',
                   'path' => 'civicrm/survey/search?sid=[id]&reset=1&op=reserve',
                   'task' => '',
@@ -240,7 +240,7 @@ return [
                 [
                   'path' => 'civicrm/survey/search?sid=[id]&reset=1&op=interview&force=1',
                   'icon' => 'fa-clipboard',
-                  'text' => 'Interview',
+                  'text' => E::ts('Interview'),
                   'style' => 'default',
                   'condition' => [],
                   'task' => '',
@@ -252,7 +252,7 @@ return [
                 [
                   'path' => 'civicrm/survey/search?sid=[id]&reset=1&op=release&force=1',
                   'icon' => 'fa-user-times',
-                  'text' => 'Release',
+                  'text' => E::ts('Release'),
                   'style' => 'default',
                   'condition' => [],
                   'task' => '',
@@ -270,7 +270,7 @@ return [
               'action' => 'add',
               'target' => 'crm-popup',
               'icon' => 'fa-plus',
-              'text' => 'Add Survey',
+              'text' => E::ts('Add Survey'),
               'style' => 'primary',
             ],
           ],

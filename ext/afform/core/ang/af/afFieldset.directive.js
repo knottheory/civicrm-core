@@ -3,7 +3,7 @@
   angular.module('af').directive('afFieldset', function() {
     return {
       restrict: 'A',
-      require: ['afFieldset', '?^^afForm', '?afRepeat'],
+      require: ['afFieldset', '?^^afForm'],
       bindToController: {
         modelName: '@afFieldset',
         storeValues: '<'
@@ -11,7 +11,6 @@
       link: function($scope, $el, $attr, ctrls) {
         const self = ctrls[0];
         self.afFormCtrl = ctrls[1];
-        self.afRepeatCtrl = ctrls[2];
       },
       controller: function($scope, $element, crmApi4) {
         const ctrl = this;
@@ -29,25 +28,18 @@
             $element.find('[search-name][display-name]').attr('display-name');
         };
         this.getEntity = function() {
-          return this.afFormCtrl ? this.afFormCtrl.getEntity(this.modelName) : null;
+          return this.afFormCtrl.getEntity(this.modelName);
         };
         this.getEntityType = function() {
-          return this.afFormCtrl ? this.afFormCtrl.getEntity(this.modelName)?.type : null;
+          return this.afFormCtrl.getEntity(this.modelName).type;
         };
         this.getFieldData = function() {
           const data = ctrl.getData();
-          // afRepeat will handle adding items itself
-          if (!data.length && !ctrl.afRepeatCtrl) {
+          if (!data.length) {
             data.push({fields: {}});
           }
-          return data[0]?.fields;
+          return data[0].fields;
         };
-
-        // Called by afRepeat
-        this.addRepeatItem = () => {
-          this.getData().push({fields: {}});
-        };
-
         this.getFormName = function() {
           return ctrl.afFormCtrl ? ctrl.afFormCtrl.getFormMeta().name : $scope.meta.name;
         };

@@ -1,11 +1,6 @@
 <?php
 use CRM_CivicrmAdminUi_ExtensionUtil as E;
 
-// Temporary check can be removed when moving this file to the civi_contribute extension.
-if (!CRM_Core_Component::isEnabled('CiviContribute')) {
-  return [];
-}
-
 return [
   [
     'name' => 'SavedSearch_Price_Set_Usage_Contribution_Pages',
@@ -65,7 +60,7 @@ return [
         'saved_search_id.name' => 'Price_Set_Usage_Contribution_Pages',
         'type' => 'table',
         'settings' => [
-          'description' => NULL,
+          'description' => E::ts(NULL),
           'sort' => [
             [
               'PriceSetEntity_ContributionPage_entity_id_01.title',
@@ -81,7 +76,7 @@ return [
             [
               'type' => 'field',
               'key' => 'PriceSetEntity_ContributionPage_entity_id_01.title',
-              'label' => 'Contribution Page',
+              'label' => E::ts('Contribution Page'),
               'sortable' => TRUE,
               'link' => [
                 'path' => '',
@@ -91,18 +86,18 @@ return [
                 'target' => 'crm-popup',
                 'task' => '',
               ],
-              'title' => 'Update Contribution Page',
+              'title' => E::ts('Update Contribution Page'),
             ],
             [
               'type' => 'field',
               'key' => 'PriceSetEntity_ContributionPage_entity_id_01.financial_type_id:label',
-              'label' => 'Financial Type',
+              'label' => E::ts('Financial Type'),
               'sortable' => TRUE,
             ],
             [
               'type' => 'field',
               'key' => 'PriceSetEntity_ContributionPage_entity_id_01.start_date',
-              'label' => 'Dates',
+              'label' => E::ts('Dates'),
               'sortable' => TRUE,
               'rewrite' => '{if "[PriceSetEntity_ContributionPage_entity_id_01.start_date][PriceSetEntity_ContributionPage_entity_id_01.end_date]"} 
 [PriceSetEntity_ContributionPage_entity_id_01.start_date] - [PriceSetEntity_ContributionPage_entity_id_01.end_date]{/if}',

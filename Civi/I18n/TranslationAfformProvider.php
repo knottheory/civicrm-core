@@ -26,9 +26,7 @@ class TranslationAfformProvider extends AutoService implements EventSubscriberIn
    * @throws \CRM_Core_Exception
    */
   public static function getTranslationAfforms($event): void {
-    $locales = \CRM_Core_I18n::uiLanguages();
-
-    if (count($locales) <= 1) {
+    if (!\CRM_Core_I18n::isMultilingual()) {
       return;
     }
 
@@ -43,18 +41,21 @@ class TranslationAfformProvider extends AutoService implements EventSubscriberIn
       return;
     }
 
+    $languages = \CRM_Core_I18n::languages();
+    $locales = \CRM_Core_I18n::getMultilingual();
+
     // if forcing translation source, we don't want to offer the translation to default locale
     $force_translation_source_locale = \Civi::settings()->get('force_translation_source_locale') ?? TRUE;
     if ($force_translation_source_locale) {
       $defaultLocale = \Civi::settings()->get('lcMessages');
-      unset($locales[$defaultLocale]);
+      $locales = array_diff($locales, [$defaultLocale]);
     }
-    foreach ($locales as $langCode => $langLabel) {
+    foreach ($locales as $index => $langCode) {
       $name = 'afsearchTranslation' . $langCode;
       $afforms[$name] = [
         'name' => $name,
         'type' => 'search',
-        'title' => ts('Translations to %1', [1 => $langLabel]),
+        'title' => ts('Translations to %1', [1 => $languages[$langCode]]),
         'description' => NULL,
         'placement' => [],
         'placement_filters' => [],

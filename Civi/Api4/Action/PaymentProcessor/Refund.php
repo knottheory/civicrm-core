@@ -23,7 +23,7 @@ class Refund extends \Civi\Api4\Generic\AbstractAction {
    * @var int
    * @required
    */
-  protected ?int $paymentProcessorID = NULL;
+  protected int $paymentProcessorID;
 
   /**
    * The amount to refund
@@ -31,7 +31,7 @@ class Refund extends \Civi\Api4\Generic\AbstractAction {
    * @var float
    * @required
    */
-  protected ?float $amountToRefund = NULL;
+  protected float $amountToRefund;
 
   /**
    * The currency of the amount to refund (Optional)
@@ -47,7 +47,7 @@ class Refund extends \Civi\Api4\Generic\AbstractAction {
    * @var string
    * @required
    */
-  protected ?string $transactionID = NULL;
+  protected string $transactionID;
 
   /**
    * @see \Civi\Api4\Generic\AbstractEntity::permissions()

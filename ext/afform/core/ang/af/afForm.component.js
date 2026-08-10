@@ -33,13 +33,6 @@
         $scope.$parent[this.ctrl] = this;
 
         $timeout(() => {
-          // render tokenised markup
-          $element[0].querySelectorAll('.af-markup:not(af-markup)').forEach((el) => {
-            const renderer = document.createElement('af-markup');
-            renderer.markup = el.innerHTML;
-            el.replaceChildren(renderer);
-          });
-
           ctrl.loadData()
             .then(setupDraftWatcher);
 
@@ -403,20 +396,6 @@
         }
       };
 
-      this.validate = () => {
-        if (!ctrl.ngForm.$valid || !validateFileFields()) {
-          return new Promise((resolve) => resolve({
-            is_error: true,
-            message: ts('Please fill all required fields.'),
-          }));
-        }
-        return crmApi4('Afform', 'validate', {
-          name: this.getFormMeta().name,
-          args: args,
-          values: data,
-        });
-      };
-
       this.submit = function () {
         // validate required fields on the form
         if (!ctrl.ngForm.$valid || !validateFileFields()) {
@@ -605,15 +584,8 @@
 
         tokens.forEach((token) => {
           const parts = token.slice(1, -1).split('.');
-          const entity = parts[0];
-          const index = parts[1];
-          const fieldName = parts.slice(2).join('.');
-          if (!data || !data[entity] || !data[entity][index] || !data[entity][index].fields || (data[entity][index].fields[fieldName] === undefined) ) {
-            values[token] = '';
-          }
-          else {
-            values[token] = data[entity][index].fields[fieldName];
-          }
+          values[token] = data[parts[0]][parts[1]].fields[parts.slice(2).join('.')];
+          values[token] = (values[token] === undefined) ? '' : values[token];
         });
 
         return values;
@@ -622,9 +594,10 @@
       this.replaceTokens = (message) => {
         const tokens = this.identifyTokens(message);
         const tokenValues = this.getTokenValues(tokens);
-        tokens.forEach((token) => message = message.replaceAll(token, tokenValues[token]));
+        tokens.forEach((token) => message = message.replace(token, tokenValues[token]));
         return message;
       };
+
     }
   });
 })(angular, CRM.$, CRM._);

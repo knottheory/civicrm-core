@@ -224,80 +224,46 @@ SELECT count( a.id )
   public static function whereClause($type, &$tables, &$whereTables, $contactID = NULL) {
 
     $whereClause = NULL;
+    $allInclude = $allExclude = FALSE;
     $clauses = [];
 
     $dao = self::getOrderedActiveACLs($contactID, 'civicrm_group');
     if ($dao !== NULL) {
-      // Process ACLs in priority order (ascending). For each group,
-      // the last rule (highest priority) determines the final decision.
-      // A "baseline" rule (object_id=0) applies to all groups and
-      // resets any previous per-group decisions.
-      $baseline = NULL;
-      // object_id => 'allow' | 'deny'
-      $groupDecisions = [];
-
+      // do an or of all the where clauses u see
       $ids = $excludeIds = [];
-      $groupIdsInPriorityOrder = [];
       while ($dao->fetch()) {
+        // make sure operation matches the type TODO
         if (self::matchType($type, $dao->operation)) {
-          if (empty($dao->object_id)) {
-            $baseline = $dao->deny ? 'deny' : 'allow';
-            $groupDecisions = $groupIdsInPriorityOrder = [];
-          }
-          else {
-            $groupIdsInPriorityOrder[] = $dao->object_id;
-            $groupDecisions[$dao->object_id] = $dao->deny ? 'deny' : 'allow';
-          }
-        }
-      }
-
-      // Separate final per-group decisions into allowed and denied
-      $allowedGroupIds = [];
-      $deniedGroupIds = [];
-      foreach ($groupDecisions as $groupId => $decision) {
-        if ($decision === 'allow') {
-          $allowedGroupIds[] = $groupId;
-        }
-        else {
-          $deniedGroupIds[] = $groupId;
-        }
-      }
-
-      // Generate SQL clauses based on baseline + per-group overrides
-      if ($baseline === 'allow') {
-        if (!empty($deniedGroupIds)) {
-          $clauses[] = self::getGroupClause($deniedGroupIds, 'NOT IN');
-        }
-        else {
-          $clauses[] = ' ( 1 ) ';
-        }
-      }
-      elseif ($baseline === 'deny') {
-        if (!empty($allowedGroupIds)) {
-          $clauses[] = self::getGroupClause($allowedGroupIds, 'IN');
-        }
-        // else: deny all, no clause → will result in (0) below
-      }
-      else {
-        // No baseline — only specific group rules
-        if (!empty($allowedGroupIds) && !empty($deniedGroupIds)) {
-          foreach ($groupIdsInPriorityOrder as $group_id) {
-            $where = self::getGroupClause([$group_id], 'IN');
-            $contact_ids = CRM_Core_DAO::executeQuery("SELECT contact_a.id FROM civicrm_contact contact_a WHERE {$where}")->fetchAll();
-            if ($groupDecisions[$group_id] == 'allow') {
-              $ids = array_merge($ids, array_column($contact_ids, 'id'));
+          if (!$dao->deny) {
+            if (empty($dao->object_id)) {
+              $allInclude = TRUE;
             }
             else {
-              $ids = array_diff($ids, array_column($contact_ids, 'id'));
+              $ids[] = $dao->object_id;
             }
           }
-          if (!empty($ids)) {
-            $clauses[] = " contact_a.id IN (" . implode(',', $ids) . ')';
+          else {
+            if (empty($dao->object_id)) {
+              $allExclude = TRUE;
+            }
+            else {
+              $excludeIds[] = $dao->object_id;
+            }
           }
         }
-        elseif (!empty($allowedGroupIds)) {
-          $clauses[] = self::getGroupClause($allowedGroupIds, 'IN');
-        }
+      }
+      if (!empty($excludeIds) && !$allInclude) {
+        $ids = array_diff($ids, $excludeIds);
+      }
+      elseif (!empty($excludeIds) && $allInclude) {
+        $ids = [];
+        $clauses[] = self::getGroupClause($excludeIds, 'NOT IN');
+      }
+      if (!empty($ids) && !$allInclude) {
+        $clauses[] = self::getGroupClause($ids, 'IN');
+      }
+      elseif ($allInclude && empty($excludeIds)) {
+        $clauses[] = ' ( 1 ) ';
       }
     }
 
@@ -523,7 +489,7 @@ SELECT count( a.id )
         $orderBy = "a.priority, $orderBy";
       }
       $query = "
-SELECT   a.operation, a.object_id, a.deny, a.priority
+SELECT   a.operation, a.object_id, a.deny
   FROM   civicrm_acl_cache c, civicrm_acl a
  WHERE   c.acl_id       =  a.id
    AND   a.is_active    =  1

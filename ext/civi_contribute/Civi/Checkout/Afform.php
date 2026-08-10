@@ -217,7 +217,6 @@ class Afform extends AutoService implements EventSubscriberInterface {
 
     return [
       'checkoutOptions' => $config,
-      'testMode' => $testMode,
     ];
   }
 

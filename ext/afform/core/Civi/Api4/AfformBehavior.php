@@ -7,7 +7,6 @@ namespace Civi\Api4;
  * Behaviors provide special functionality for different types of entities.
  * Provided by the Afform: Core Runtime extension.
  *
- * @primaryKey key
  * @searchable secondary
  * @since 5.56
  * @package Civi\Api4

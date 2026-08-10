@@ -80,13 +80,13 @@ return [
             [
               'type' => 'field',
               'key' => 'contact_id',
-              'label' => 'Contact',
+              'label' => E::ts('Contact'),
               'required' => TRUE,
             ],
             [
               'type' => 'field',
               'key' => 'total_amount',
-              'label' => 'Total Amount',
+              'label' => E::ts('Total Amount'),
               'tally' => [
                 'fn' => 'SUM',
                 'target' => TRUE,
@@ -96,7 +96,7 @@ return [
             [
               'type' => 'field',
               'key' => 'fee_amount',
-              'label' => 'Fee Amount',
+              'label' => E::ts('Fee Amount'),
               'tally' => [
                 'fn' => 'SUM',
               ],
@@ -104,7 +104,7 @@ return [
             [
               'type' => 'field',
               'key' => 'net_amount',
-              'label' => 'Net Amount',
+              'label' => E::ts('Net Amount'),
               'tally' => [
                 'fn' => 'SUM',
               ],
@@ -112,49 +112,49 @@ return [
             [
               'type' => 'field',
               'key' => 'contribution_status_id:label',
-              'label' => 'Contribution Status',
+              'label' => E::ts('Contribution Status'),
               'default' => '1',
             ],
             [
               'type' => 'field',
               'key' => 'financial_type_id:label',
-              'label' => 'Financial Type',
+              'label' => E::ts('Financial Type'),
               'required' => TRUE,
             ],
             [
               'type' => 'field',
               'key' => 'receive_date',
-              'label' => 'Contribution Date',
+              'label' => E::ts('Contribution Date'),
             ],
             [
               'type' => 'field',
               'key' => 'source',
-              'label' => 'Contribution Source',
+              'label' => E::ts('Contribution Source'),
             ],
             [
               'type' => 'field',
               'key' => 'payment_instrument_id:label',
-              'label' => 'Payment Method',
+              'label' => E::ts('Payment Method'),
             ],
             [
               'type' => 'field',
               'key' => 'check_number',
-              'label' => 'Check Number',
+              'label' => E::ts('Check Number'),
             ],
             [
               'type' => 'field',
               'key' => 'invoice_number',
-              'label' => 'Invoice Number',
+              'label' => E::ts('Invoice Number'),
             ],
             [
               'type' => 'field',
               'key' => 'Contribution_ContributionSoft_contribution_id_01.soft_credit_type_id:label',
-              'label' => 'Soft Credit Type',
+              'label' => E::ts('Soft Credit Type'),
             ],
             [
               'type' => 'field',
               'key' => 'Contribution_ContributionSoft_contribution_id_01.contact_id',
-              'label' => 'Soft Credit Contact',
+              'label' => E::ts('Soft Credit Contact'),
             ],
           ],
           'tally' => [],

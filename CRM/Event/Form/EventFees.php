@@ -194,9 +194,6 @@ class CRM_Event_Form_EventFees {
         $defaults[$f] = $contribution->$f;
       }
     }
-    else {
-      $defaults['contribution_status_id'] = CRM_Core_OptionGroup::getDefaultValue('contribution_status') ?? CRM_Core_PseudoConstant::getKey('CRM_Contribute_BAO_Contribution', 'contribution_status_id', 'Completed');
-    }
     return $defaults;
   }
 

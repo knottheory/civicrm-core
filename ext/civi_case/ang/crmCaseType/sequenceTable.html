@@ -7,7 +7,6 @@ Required vars: activitySet
   <tr>
     <th></th>
     <th>{{:: ts('Activity') }}</th>
-    <th>{{:: ts('Default subject') }}</th>
     <th></th>
   </tr>
   </thead>
@@ -22,14 +21,6 @@ Required vars: activitySet
       {{ activity.name }}
     </td>
     <td>
-      <input
-        class="crm-form-text"
-        type="text"
-        ng-model="activity.default_subject"
-        placeholder="{{:: ts('(no subject)') }}"
-        />
-    </td>
-    <td>
       <a crm-icon="fa-trash" class="crm-hover-button" ng-click="removeItem(activitySet.activityTypes, activity)" title="{{:: ts('Remove') }}"></a>
     </td>
   </tr>
@@ -37,7 +28,7 @@ Required vars: activitySet
 
   <tfoot>
   <tr class="addRow">
-    <td colspan="4">
+    <td colspan="3">
       <span crm-add-name
            crm-options="activityTypeOptions"
            crm-var="newActivity"

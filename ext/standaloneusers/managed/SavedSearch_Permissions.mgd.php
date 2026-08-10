@@ -57,7 +57,7 @@ $items = [
             [
               'type' => 'html',
               'key' => 'title',
-              'label' => 'Permission',
+              'label' => E::ts('Permission'),
               'sortable' => TRUE,
               'rewrite' => '[title]<p class="description">[description]</p>',
             ],

@@ -1,6 +1,6 @@
 // http://civicrm.org/licensing
 CRM.$(function($) {
-  function openKCFinder() {
+  function openKCFinder(field) {
     var field = $(this);
     window.KCFinder = {
       callBack: function(url) {

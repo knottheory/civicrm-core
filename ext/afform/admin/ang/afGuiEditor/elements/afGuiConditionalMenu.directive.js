@@ -4,21 +4,14 @@
       restrict: 'A',
       templateUrl: '~/afGuiEditor/elements/afGuiConditionalMenu.html',
       require: {
-        editor: '^^afGuiEditor',
-        field: '?^^afGuiField'
+        editor: '^^afGuiEditor'
       },
       bindToController: {
         node: '<afGuiConditionalMenu'
       },
       controller: function($scope) {
-
-        $scope.hasRules = () => {
-          return !!(
-            (this.node['af-if'] && this.node['af-if'].length) ||
-            (this.node['af-required'] && this.node['af-required'].length) ||
-            (this.node['af-disabled'] && this.node['af-disabled'].length)
-          );
-        };
+        const ts = CRM.ts('org.civicrm.afform_admin'),
+          ctrl = this;
       }
     };
   });

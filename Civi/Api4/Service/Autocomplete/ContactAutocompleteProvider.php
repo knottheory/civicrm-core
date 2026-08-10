@@ -52,9 +52,6 @@ class ContactAutocompleteProvider extends \Civi\Core\Service\AutoService impleme
       $allowedFilters = \Civi::settings()->get('quicksearch_options');
       foreach ($apiRequest->getFilters() as $filterField => $val) {
         if (in_array($filterField, $allowedFilters)) {
-          if ($filterField === 'phone_primary.phone' || $filterField === 'Phone.phone_numeric') {
-            $val = preg_replace('/\D/', '', $val);
-          }
           // Add trusted filter
           $apiRequest->addFilter($filterField, $val);
           $apiRequest->setInput($val);
@@ -156,11 +153,7 @@ class ContactAutocompleteProvider extends \Civi\Core\Service\AutoService impleme
         $prefix = \Civi::settings()->get('includeWildCardInName') ? '%' : '';
         foreach ($filterFields as $field) {
           $params = $apiParams;
-          $inputVal = $apiRequest->getInput();
-          if ($field === 'phone_primary.phone' || $field === 'Phone.phone_numeric') {
-            $inputVal = preg_replace('/\D/', '', $inputVal);
-          }
-          $params['where'][] = [$field, 'LIKE', $prefix . $inputVal . '%'];
+          $params['where'][] = [$field, 'LIKE', $prefix . $apiRequest->getInput() . '%'];
           // Strip all suffixes from inner select array (pseudoconstants will be evaluated by the outer query)
           $params['select'] = array_map(function ($field) {
             return explode(':', $field)[0];

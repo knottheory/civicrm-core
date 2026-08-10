@@ -27,15 +27,15 @@
           searchFields.push('description');
           searchFields.forEach((field) => {
             if (ctrl.parent.savedSearch.api_params.select.includes(field)) {
-              ctrl.display.settings.columns.push(searchMeta.fieldToColumn(field, {}, ctrl.parent.savedSearch));
+              ctrl.display.settings.columns.push(searchMeta.fieldToColumn(field, {}));
             }
           });
         }
         ctrl.parent.initColumns({});
         ctrl.display.settings.searchFields = ctrl.display.settings.searchFields || [];
         if (!ctrl.display.settings.searchFields.length) {
-          const baseEntity = searchMeta.getEntity(ctrl.apiEntity);
-          if (searchMeta.getField('id', ctrl.apiEntity)) {
+          const baseEntity = searchMeta.getBaseEntity();
+          if (searchMeta.getField('id')) {
             ctrl.display.settings.searchFields.push('id');
           }
           if (baseEntity.search_fields && baseEntity.search_fields.length) {

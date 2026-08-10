@@ -17,15 +17,6 @@ return [
     'update' => 'civicrm/admin/participant_status?action=update&id=[id]&reset=1',
     'delete' => 'civicrm/admin/participant_status?action=delete&id=[id]&reset=1',
   ],
-  'getIndices' => fn() => [
-    'UI_name' => [
-      'fields' => [
-        'name' => TRUE,
-      ],
-      'unique' => TRUE,
-      'add' => '6.18',
-    ],
-  ],
   'getFields' => fn() => [
     'id' => [
       'title' => ts('Participant Status Type ID'),

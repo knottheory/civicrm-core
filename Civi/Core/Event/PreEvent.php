@@ -69,38 +69,17 @@ class PreEvent extends GenericHookEvent {
    * @since 6.15
    */
   public function getValue(string $paramName) {
-    return $this->findValue($paramName)[1];
-  }
-
-  /**
-   * Checks whether a parameter is present, even if its value is NULL.
-   *
-   * Unlike getValue(), this distinguishes a parameter set to NULL from one that
-   * is not present at all.
-   *
-   * @since 6.17
-   */
-  public function hasValue(string $paramName): bool {
-    return $this->findValue($paramName)[0];
-  }
-
-  /**
-   * Looks up a parameter in all the places it may be set.
-   *
-   * @return array [if parameter is present, value or NULL].
-   */
-  private function findValue(string $paramName): array {
-    if (array_key_exists($paramName, $this->params)) {
-      return [TRUE, $this->params[$paramName]];
+    if (isset($this->params[$paramName])) {
+      return $this->params[$paramName];
     }
 
     // If this looks like the name of a custom field, try to find it.
     if (substr_count($paramName, '.') !== 1 || str_starts_with($paramName, '.') || str_ends_with($paramName, '.')) {
-      return [FALSE, NULL];
+      return NULL;
     }
     $customField = \CRM_Core_BAO_CustomField::getFieldByName($paramName);
     if (!$customField) {
-      return [FALSE, NULL];
+      return NULL;
     }
     $customFieldId = $customField['id'];
     $shortName = "custom_$customFieldId";
@@ -109,15 +88,15 @@ class PreEvent extends GenericHookEvent {
     // 1. In the 'custom' array, keyed by custom field id.
     if (!empty($this->params['custom'][$customFieldId])) {
       $customParam = reset($this->params['custom'][$customFieldId]);
-      return [TRUE, $this->formatCustomValue($customField, $customParam['value'] ?? NULL)];
+      return $this->formatCustomValue($customField, $customParam['value'] ?? NULL);
     }
     // 2. In the params, possibly suffixed with an id.
     foreach ($this->params as $key => $value) {
       if ($key === $shortName || str_starts_with($key, $shortName . '_')) {
-        return [TRUE, $this->formatCustomValue($customField, $value)];
+        return $this->formatCustomValue($customField, $value);
       }
     }
-    return [FALSE, NULL];
+    return NULL;
   }
 
   /**

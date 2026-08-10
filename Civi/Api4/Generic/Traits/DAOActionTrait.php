@@ -121,7 +121,7 @@ trait DAOActionTrait {
 
     foreach ($fields as $name => $field) {
       // If a default value in the api field is different than in core, the api should override it.
-      if (!empty($field['default_value']) && !FormattingUtil::hasField($name, $params) && $field['default_value'] != \CRM_Utils_Array::pathGet($coreFields, [$name, 'default'])) {
+      if (!isset($params[$name]) && !empty($field['default_value']) && $field['default_value'] != \CRM_Utils_Array::pathGet($coreFields, [$name, 'default'])) {
         $params[$name] = $field['default_value'];
       }
     }
@@ -254,28 +254,16 @@ trait DAOActionTrait {
       }
       [$fieldName, $fkField] = explode('.', $key);
       $field = $this->entityFields()[$fieldName] ?? NULL;
-      if (!$field || $field['type'] !== 'Field') {
+      if (!$field || $field['type'] !== 'Field' || empty($field['fk_entity'])) {
         continue;
       }
-      $fkEntityName = $field['fk_entity'] ?? NULL;
-      $fkColumnName = $field['fk_column'] ?? 'id';
-      // Dynamic FK (e.g. `entity_id` paired with `entity_table`): the target entity
-      // isn't fixed, so resolve it from the sibling discriminator column's value,
-      // which must already be present (as a plain value) in this same record.
-      if (!$fkEntityName && !empty($field['dfk_entities'])) {
-        $controlField = $field['input_attrs']['control_field'] ?? NULL;
-        if (empty($record[$controlField])) {
-          continue;
-        }
-        $fkEntityName = CoreUtil::getApiNameFromTableName($record[$controlField]);
+      $fkDao = CoreUtil::getBAOFromApiName($field['fk_entity']);
+      if (!$fkDao) {
+        throw new \CRM_Core_Exception('Failed to load ' . $field['fk_entity']);
       }
-      if (!$fkEntityName) {
-        continue;
-      }
-      $fkEntity = \Civi::entity($fkEntityName);
       // Constrain search to the domain of the current entity
       $domainConstraint = NULL;
-      if ($fkEntity->getField('domain_id')) {
+      if (isset($fkDao::getSupportedFields()['domain_id'])) {
         if (!empty($record['domain_id'])) {
           $domainConstraint = $record['domain_id'] === 'current_domain' ? \CRM_Core_Config::domainID() : $record['domain_id'];
         }
@@ -283,28 +271,16 @@ trait DAOActionTrait {
           $domainConstraint = \CRM_Core_DAO::getFieldValue($this->getBaoName(), $record['id'], 'domain_id');
         }
       }
-      $resolvedId = NULL;
-      if (CoreUtil::entityExists($fkEntityName)) {
-        $conditions = [[$fkField, '=', $value]];
-        if ($domainConstraint) {
-          $conditions[] = ['domain_id', '=', $domainConstraint];
-        }
-        $fkResult = civicrm_api4($fkEntityName, 'get', [
-          'select' => [$fkColumnName],
-          'where' => $conditions,
-          'checkPermissions' => $this->getCheckPermissions(),
-        ]);
-        $resolvedId = $fkResult->single()[$fkColumnName];
+      if ($domainConstraint) {
+        $fkSearch = new $fkDao();
+        $fkSearch->domain_id = $domainConstraint;
+        $fkSearch->$fkField = $value;
+        $fkSearch->find(TRUE);
+        $record[$fieldName] = $fkSearch->id;
       }
-      // E.g. component_id (Component does not have an Api4 entity)
-      elseif ($fkDao = CoreUtil::getBAOFromApiName($fkEntityName)) {
-        $resolvedId = \CRM_Core_DAO::getFieldValue($fkDao, $value, $fkColumnName, $fkField);
-      }
-      if ($resolvedId !== NULL) {
-        $record[$fieldName] = $resolvedId;
-      }
+      // Simple lookup without all the fuss about domains
       else {
-        throw new \CRM_Core_Exception('Failed to load ' . $fkEntityName);
+        $record[$fieldName] = \CRM_Core_DAO::getFieldValue($fkDao, $value, 'id', $fkField);
       }
       unset($record[$key]);
     }
@@ -325,7 +301,7 @@ trait DAOActionTrait {
       // look for a field whose value is unspecified and whose default is non-null
       foreach ($customGroup['fields'] as $field) {
         $fieldName = "{$customGroup['name']}.{$field['name']}";
-        if (isset($field['default_value']) && !FormattingUtil::hasField($fieldName, $record)) {
+        if (isset($field['default_value']) && !array_key_exists($fieldName, $record)) {
           $record[$fieldName] = $field['default_value'];
           // Setting the non-null value for one field in the group will ensure that all get written
           break;

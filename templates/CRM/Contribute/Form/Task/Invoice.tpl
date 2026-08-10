@@ -25,8 +25,8 @@
     </tr>
   {/if}
   <tr id="selectEmailFrom" style="display: none" class="crm-contactEmail-form-block-fromEmailAddress crm-email-element">
-    <td class="label">{$form.from_email_address.label} {help id="from_email_address" file="CRM/Contact/Form/Task/Help/Email/id-from_email.hlp"}</td>
-    <td>{$form.from_email_address.html}</td>
+    <td class="label">{$form.from_email_address.label}</td>
+    <td>{$form.from_email_address.html} {help id="from_email_address" file="CRM/Contact/Form/Task/Help/Email/id-from_email.hlp"}</td>
   </tr>
   <tr class="crm-email-element crm-contactEmail-form-block-cc_id">
     <td class="label">{$form.cc_id.label}</td>
@@ -50,6 +50,10 @@
       <td>{$form.output.pdf_invoice.html}</td>
     </tr>
   {/if}
+  <tr class="crm-pdf-element">
+    <td class="label">{$form.pdf_format_id.label}</td>
+    <td>{$form.pdf_format_id.html}</td>
+  </tr>
 </table>
 </div>
 
@@ -75,8 +79,10 @@
     function showhideEmailElements() {
       if ($('input[name="output"]:checked').val() == 'email_invoice') {
         $('.crm-email-element').show();
+        $('.crm-pdf-element').hide();
       }
       else {
+        $('.crm-pdf-element').show();
         $('.crm-email-element').hide();
       }
     }

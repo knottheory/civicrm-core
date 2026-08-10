@@ -1,11 +1,6 @@
 <?php
 use CRM_CivicrmAdminUi_ExtensionUtil as E;
 
-// Temporary check can be removed when moving this file to the civi_mail extension.
-if (!CRM_Core_Component::isEnabled('CiviMail')) {
-  return [];
-}
-
 return [
   [
     'name' => 'SavedSearch_Headers_Footers_and_Automated_Messages',
@@ -68,38 +63,38 @@ return [
             [
               'type' => 'field',
               'key' => 'name',
-              'label' => 'Name',
+              'label' => E::ts('Name'),
               'sortable' => FALSE,
               'editable' => TRUE,
             ],
             [
               'type' => 'field',
               'key' => 'component_type:label',
-              'label' => 'Type',
+              'label' => E::ts('Type'),
               'sortable' => FALSE,
             ],
             [
               'type' => 'field',
               'key' => 'subject',
-              'label' => 'Subject',
+              'label' => E::ts('Subject'),
               'sortable' => FALSE,
             ],
             [
               'type' => 'field',
               'key' => 'body_html',
-              'label' => 'Body HTML',
+              'label' => E::ts('Body HTML'),
               'sortable' => FALSE,
             ],
             [
               'type' => 'field',
               'key' => 'body_text',
-              'label' => 'Body Text',
+              'label' => E::ts('Body Text'),
               'sortable' => FALSE,
             ],
             [
               'type' => 'field',
               'key' => 'is_active',
-              'label' => 'Enabled',
+              'label' => E::ts('Enabled'),
               'sortable' => FALSE,
               'icons' => [],
               'rewrite' => '',
@@ -107,7 +102,7 @@ return [
             [
               'type' => 'field',
               'key' => 'is_default',
-              'label' => 'Default',
+              'label' => E::ts('Default'),
               'sortable' => FALSE,
               'title' => NULL,
               'rewrite' => '[none]',
@@ -127,7 +122,7 @@ return [
                   'join' => '',
                   'target' => 'crm-popup',
                   'icon' => '',
-                  'text' => 'Edit',
+                  'text' => E::ts('Edit'),
                   'style' => 'default',
                   'path' => '',
                   'task' => '',
@@ -139,7 +134,7 @@ return [
                   'join' => '',
                   'target' => 'crm-popup',
                   'icon' => '',
-                  'text' => 'Disable',
+                  'text' => E::ts('Disable'),
                   'style' => 'default',
                   'path' => '',
                   'action' => '',
@@ -151,7 +146,7 @@ return [
                   'join' => '',
                   'target' => 'crm-popup',
                   'icon' => '',
-                  'text' => 'Enable',
+                  'text' => E::ts('Enable'),
                   'style' => 'default',
                   'path' => '',
                   'action' => '',
@@ -172,7 +167,7 @@ return [
             [
               'action' => 'add',
               'entity' => 'MailingComponent',
-              'text' => 'Add Mailing Component',
+              'text' => E::ts('Add Mailing Component'),
               'icon' => 'fa-plus',
               'style' => 'primary',
               'target' => 'crm-popup',

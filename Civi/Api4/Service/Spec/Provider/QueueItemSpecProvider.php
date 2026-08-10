@@ -12,7 +12,6 @@
 
 namespace Civi\Api4\Service\Spec\Provider;
 
-use Civi\Api4\Service\Spec\FieldSpec;
 use Civi\Api4\Service\Spec\RequestSpec;
 use Civi\Core\Service\AutoService;
 
@@ -20,9 +19,6 @@ use Civi\Core\Service\AutoService;
  * Set permissions on Queue Items to allow some fields (release_date etc) but NOT the data to be
  * edited for queue items - this allows search kits to be used to manage queue items but not to inject
  * executable code.
- *
- * A read-only `data_raw` field exposes the same column as an un-unserialized string so it can be
- * displayed (e.g. in SearchKit) for debugging.
  *
  * @service
  * @internal
@@ -34,17 +30,6 @@ class QueueItemSpecProvider extends AutoService implements Generic\SpecProviderI
    */
   public function modifySpec(RequestSpec $spec): void {
     $spec->getFieldByName('data')->setPermission([\CRM_Core_Permission::ALWAYS_DENY_PERMISSION]);
-
-    if ($spec->getAction() === 'get') {
-      $field = (new FieldSpec('data_raw', 'QueueItem', 'String'))
-        ->setTitle(ts('Data (raw)'))
-        ->setLabel(ts('Data (raw)'))
-        ->setDescription(ts('Raw serialized data'))
-        ->setColumnName('data')
-        ->setType('Extra')
-        ->setReadonly(TRUE);
-      $spec->addFieldSpec($field);
-    }
   }
 
   /**

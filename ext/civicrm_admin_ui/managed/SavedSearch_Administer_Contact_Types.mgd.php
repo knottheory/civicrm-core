@@ -72,7 +72,7 @@ return [
             [
               'type' => 'field',
               'key' => 'label',
-              'label' => 'Label',
+              'label' => E::ts('Label'),
               'sortable' => TRUE,
               'icons' => [
                 [
@@ -85,7 +85,7 @@ return [
             [
               'type' => 'field',
               'key' => 'description',
-              'label' => 'Description',
+              'label' => E::ts('Description'),
               'sortable' => TRUE,
               'editable' => TRUE,
             ],
@@ -101,7 +101,7 @@ return [
                   'join' => '',
                   'target' => 'crm-popup',
                   'icon' => 'fa-pencil',
-                  'text' => 'Edit',
+                  'text' => E::ts('Edit'),
                   'style' => 'default',
                   'path' => '',
                   'condition' => [],
@@ -112,7 +112,7 @@ return [
                   'join' => '',
                   'target' => 'crm-popup',
                   'icon' => 'fa-trash',
-                  'text' => 'Delete',
+                  'text' => E::ts('Delete'),
                   'style' => 'danger',
                   'path' => '',
                   'condition' => [
@@ -131,7 +131,7 @@ return [
               'action' => 'add',
               'target' => 'crm-popup',
               'style' => 'primary',
-              'text' => 'Add Contact Type',
+              'text' => E::ts('Add Contact Type'),
               'icon' => 'fa-plus',
             ],
           ],

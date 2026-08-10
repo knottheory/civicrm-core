@@ -66,18 +66,7 @@ class DefaultSender extends AutoService {
       }
 
       $headers = $message->headers();
-
-      $to = $headers['To'];
-
-      if (!empty($headers['Cc'])) {
-        $to .= ',' . $headers['Cc'];
-      }
-
-      if (!empty($headers['Bcc'])) {
-        $to .= ',' . $headers['Bcc'];
-      }
-
-      $result = $mailer->send($to, $headers, $message->get());
+      $result = $mailer->send($headers['To'], $headers, $message->get());
 
       if ($job_date) {
         unset($errorScope);

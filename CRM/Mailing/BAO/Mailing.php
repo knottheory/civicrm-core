@@ -660,11 +660,8 @@ class CRM_Mailing_BAO_Mailing extends CRM_Mailing_DAO_Mailing implements \Civi\C
    *
    * @return array
    *   reference to an assoc array
-   *
-   * @deprecated since 6.18 will be removed around 6.28
    */
   public function &getFlattenedTokens() {
-    CRM_Core_Error::deprecatedFunctionWarning('token processor');
     if (!$this->flattenedTokens) {
       $tokens = $this->getTokens();
 
@@ -849,8 +846,8 @@ ORDER BY   civicrm_email.is_bulkmail DESC
   /**
    * Get verp, urls and headers
    *
-   * @param int|null $job_id
-   *   (deprecated) ID of the Job associated with this message.
+   * @param int $job_id
+   *   ID of the Job associated with this message.
    * @param int $event_queue_id
    *   ID of the EventQueue.
    * @param string $hash
@@ -1945,7 +1942,7 @@ LEFT JOIN civicrm_mailing_group g ON g.mailing_id   = m.id
     $className = CRM_Utils_System::getClassName($form);
 
     if ($className != 'CRM_SMS_Form_Upload' && $className != 'CRM_Contact_Form_Task_SMS' &&
-      $className != 'CRM_Event_Form_Task_SMS'
+      $className != 'CRM_Contact_Form_Task_SMS'
     ) {
       $form->add('wysiwyg', 'html_message',
         strstr($className, 'PDF') ? ts('Document Body') : ts('HTML Format'),
@@ -1993,7 +1990,7 @@ LEFT JOIN civicrm_mailing_group g ON g.mailing_id   = m.id
 
         $form->add('select', "{$prefix}template", ts('Use Template'),
           ['' => ts('- select -')] + $templates[$prefix], FALSE,
-          ['onChange' => "selectValue( this.value, '{$prefix}');", 'class' => 'crm-select2 huge', 'title' => ts('Use Template')]
+          ['onChange' => "selectValue( this.value, '{$prefix}');", 'class' => 'crm-select2 huge']
         );
       }
       if (\CRM_Core_Permission::check('edit message templates')) {

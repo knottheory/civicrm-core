@@ -1458,12 +1458,7 @@ class CRM_Utils_System {
   public static function civiExit($status = 0, $testParameters = []) {
 
     if (CIVICRM_UF === 'UnitTests') {
-      // When statusBouncing, it's helpful to see the status messages.
-      // It would make sense to add them to testParameters instead of appending
-      // to the message, but I don't see where they get output anywhere?
-      $bounceMessages = CRM_Core_Session::singleton()->getStatus();
-      $bounceMessages = empty($bounceMessages) ? '' : ("\n" . print_r($bounceMessages, TRUE));
-      throw new CRM_Core_Exception_PrematureExitException('civiExit called' . $bounceMessages, $testParameters);
+      throw new CRM_Core_Exception_PrematureExitException('civiExit called', $testParameters);
     }
     if ($status > 0) {
       http_response_code(500);

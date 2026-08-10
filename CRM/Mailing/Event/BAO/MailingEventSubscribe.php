@@ -114,6 +114,7 @@ SELECT     civicrm_email.id as email_id
 
     if (!$dao->fetch()) {
       throw new CRM_Core_Exception('Please file an issue with the backtrace');
+      return $success;
     }
 
     $se = new CRM_Mailing_Event_BAO_MailingEventSubscribe();

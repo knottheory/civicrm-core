@@ -18,7 +18,7 @@
       mode: '@'
     },
     controllerAs: 'editor',
-    controller: function($scope, $element, crmApi4, crmUiHelp, afGui, $parse, $timeout, $location, $route, $rootScope, formatForSelect2) {
+    controller: function($scope, crmApi4, crmUiHelp, afGui, $parse, $timeout, $location, $route, $rootScope, formatForSelect2) {
       const ts = $scope.ts = CRM.ts('org.civicrm.afform_admin');
       $scope.hs = crmUiHelp({file: 'CRM/AfformAdmin/afformBuilder'});
 
@@ -110,10 +110,8 @@
         if (!editor.afform.placement_filters || Array.isArray(editor.afform.placement_filters)) {
           editor.afform.placement_filters = {};
         }
-        editor.canvasTab = 'layout';
-        editor.layoutHtml = '';
-        editor.markupEditMode = false;
-        editor.markupEditBaseline = '';
+        $scope.canvasTab = 'layout';
+        $scope.layoutHtml = '';
         $scope.entities = {};
         setEditorLayout();
         setLastSaved();
@@ -208,7 +206,7 @@
         undoAction = 'change';
         editor.afform = _.cloneDeep(undoHistory[undoPosition].afform);
         setEditorLayout();
-        editor.canvasTab = 'layout';
+        $scope.canvasTab = 'layout';
         $scope.selectedEntityName = undoHistory[undoPosition].selectedEntityName;
       }
 
@@ -224,120 +222,15 @@
         return editor.afform.type;
       };
 
-      this.getFormTypeLabel = () => {
-        const options = this.meta.afform_fields.type.options;
-        return options.find(option => option.id === editor.afform.type).label;
-      };
-
-      this.checkPerm = function(permissionName) {
-        return CRM.checkPerm(permissionName);
-      };
-
       $scope.updateLayoutHtml = function() {
-        editor.layoutHtml = '...Loading...';
+        $scope.layoutHtml = '...Loading...';
         crmApi4('Afform', 'convert', {layout: editor.afform.layout, from: 'deep', to: 'html', formatWhitespace: true})
           .then((r) => {
-            editor.layoutHtml = r[0].layout || '(Error)';
+            $scope.layoutHtml = r[0].layout || '(Error)';
           })
           .catch((r) => {
-            editor.layoutHtml = '(Error)';
+            $scope.layoutHtml = '(Error)';
           });
-      };
-
-      // Minimal sanity check - not full schema validation, just guards against the markup
-      // editor producing something obviously broken (e.g. a lost <af-form> wrapper).
-      function isValidLayout(layout) {
-        if (!Array.isArray(layout) || !layout.length) {
-          return false;
-        }
-        if (editor.getFormType() === 'form') {
-          return afGui.findRecursive(layout, {'#tag': 'af-form'}).length === 1;
-        }
-        return true;
-      }
-
-      // Converts the edited markup back into the layout tree and applies it to the working form.
-      // Returns a promise resolving true on success, false if the markup couldn't be applied.
-      function applyMarkupToLayout() {
-        return crmApi4('Afform', 'convert', {layout: editor.layoutHtml, from: 'html', to: 'deep', formatWhitespace: true})
-          .then((r) => {
-            const newLayout = r[0].layout;
-            if (!isValidLayout(newLayout)) {
-              CRM.alert(ts('The markup could not be applied because it produced an invalid layout structure.'), ts('Invalid markup'), 'error');
-              return false;
-            }
-            editor.afform.layout = newLayout;
-            setEditorLayout();
-            if (editor.getFormType() === 'form') {
-              $scope.entities = _.mapValues(afGui.findRecursive(editor.layout['#children'], {'#tag': 'af-entity'}, 'name'), backfillEntityDefaults);
-            }
-            else if (editor.getFormType() === 'search') {
-              editor.searchDisplays = getSearchDisplaysOnForm();
-            }
-            editor.markupEditMode = false;
-            return true;
-          })
-          .catch((error) => {
-            const message = error?.error_message ? error.error_message : ts('Unknown error');
-            CRM.alert(message, ts('Could not apply markup'), 'error');
-            return false;
-          });
-      }
-
-      $scope.hasUnappliedMarkupEdits = function() {
-        return editor.markupEditMode && editor.layoutHtml !== editor.markupEditBaseline;
-      };
-
-      // Prompts to apply or discard pending markup edits (e.g. before leaving edit mode
-      // or switching to the Layout tab). Does nothing if the user cancels.
-      function resolvePendingMarkupEdits(onDiscard, onApply) {
-        CRM.confirm({
-          title: ts('Unsaved markup changes'),
-          message: ts('You have made changes to the markup. Apply them to the layout, or discard them, before continuing.'),
-          options: {
-            cancel: ts('Cancel'),
-            discard: ts('Discard changes'),
-            apply: ts('Apply changes'),
-          },
-        })
-          .on('crmConfirm:discard', function() {
-            $scope.$apply(function() {
-              editor.layoutHtml = editor.markupEditBaseline;
-              editor.markupEditMode = false;
-              onDiscard();
-            });
-          })
-          .on('crmConfirm:apply', function() {
-            applyMarkupToLayout().then((applied) => {
-              if (applied) {
-                onApply();
-              }
-              // else: stay put, still in edit mode, so the user can fix their HTML
-            });
-          });
-      }
-
-      $scope.toggleMarkupEdit = function() {
-        if (!editor.markupEditMode) {
-          editor.markupEditBaseline = editor.layoutHtml;
-          editor.markupEditMode = true;
-          return;
-        }
-        if (!$scope.hasUnappliedMarkupEdits()) {
-          editor.markupEditMode = false;
-          return;
-        }
-        resolvePendingMarkupEdits(angular.noop, angular.noop);
-      };
-
-      $scope.switchToLayoutTab = function() {
-        if (!$scope.hasUnappliedMarkupEdits()) {
-          editor.markupEditMode = false;
-          editor.canvasTab = 'layout';
-          return;
-        }
-        const goToLayout = () => { editor.canvasTab = 'layout'; };
-        resolvePendingMarkupEdits(goToLayout, goToLayout);
       };
 
       this.addEntity = function(type, selectTab) {
@@ -374,7 +267,7 @@
             fieldset['af-title'] = meta.label + ' ' + num;
             // Add boilerplate contents if any
             if (Array.isArray(meta.boilerplate) && meta.boilerplate.length) {
-              fieldset['#children'].push(..._.cloneDeep(meta.boilerplate));
+              fieldset['#children'].push(...meta.boilerplate);
             }
             // Attempt to place the new af-fieldset after the last one on the form
             pos = 1 + _.findLastIndex(editor.layout['#children'], 'af-fieldset');
@@ -818,21 +711,6 @@
       };
 
       $scope.save = function() {
-        if ($scope.hasUnappliedMarkupEdits()) {
-          applyMarkupToLayout().then((applied) => {
-            if (applied) {
-              doSave();
-            }
-          });
-          return;
-        }
-        doSave();
-      };
-
-      function doSave() {
-        // save and close any open rich text elements
-        $element[0].querySelectorAll('civi-rich-text-input[editing]').forEach((el) => el.saveAndCloseEditor());
-
         const afform = JSON.parse(angular.toJson(editor.afform));
         // This might be set to undefined by validation
         afform.server_route = afform.server_route || '';
@@ -869,7 +747,7 @@
             CRM.alert(message, ts('Save failed'), 'error');
             $scope.saving = false;
           });
-      }
+      };
 
       $scope.$watch('editor.afform.title', function(newTitle, oldTitle) {
         if (typeof oldTitle === 'string') {
@@ -925,67 +803,6 @@
         });
         return $location.path(newPath);
       }
-
-      this.getTokens = (includeSubmissionTokens = false) => {
-        const allTokens = [];
-        this.getEntities().forEach((entity) => {
-          const entityTokens = [];
-          const entityMeta = this.meta.entities[entity.type];
-          const entityLabel = entity.label || entityMeta.label;
-          if (entityMeta.submissionTokens && includeSubmissionTokens) {
-            // Explicitly defined submission tokens e.g. by FormProcessor extension
-            entityMeta.submissionTokens.forEach((submissionToken) => {
-              entityTokens.push({
-                id: entity.name + '.0.' + submissionToken.token,
-                text: submissionToken.label,
-                description: submissionToken.description ?? '',
-              });
-            });
-          } else if (!entityMeta.submissionTokens) {
-            // Primary key token
-            // FIXME: not all entities use `id` for primary key
-            if (includeSubmissionTokens) {
-              entityTokens.push({
-                id: entity.name + '.0.id',
-                text: ts('%1 ID', {1: entityMeta.label}),
-              });
-            }
-            // Tokens from entity data values
-            if (entity.data) {
-              Object.keys(entity.data).forEach((key) => {
-                if (entityMeta.fields[key]) {
-                  entityTokens.push({
-                    id: entity.name + '.0.' + key,
-                    text: entityMeta.fields[key].label,
-                  });
-                }
-              });
-            }
-            // Tokens from entity fields on the form
-            this.getEntityFields(entity.name).fields.forEach((field) => {
-              entityTokens.push({
-                id: entity.name + '.0.' + field.name,
-                text: field.label,
-              });
-            });
-          }
-          if (entityTokens.length) {
-            allTokens.push({
-              text: entityLabel,
-              children: entityTokens,
-            });
-          }
-        });
-        if (includeSubmissionTokens) {
-          allTokens.push({
-            text: ts('Form'),
-            children: [
-              {id: 'token', text: ts('Submission JWT')},
-            ],
-          });
-        }
-        return allTokens;
-      };
 
     }
   });

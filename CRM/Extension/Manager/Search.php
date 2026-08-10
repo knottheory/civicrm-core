@@ -10,7 +10,10 @@
  */
 
 /**
- * @deprecated since 6.18, will be removed in 6.26.
+ * This class stores logic for managing CiviCRM extensions.
+ *
+ * @package CRM
+ * @copyright CiviCRM LLC https://civicrm.org/licensing
  */
 class CRM_Extension_Manager_Search extends CRM_Extension_Manager_Base {
 
@@ -36,7 +39,6 @@ class CRM_Extension_Manager_Search extends CRM_Extension_Manager_Base {
    * @throws CRM_Core_Exception
    */
   public function onPreInstall(CRM_Extension_Info $info) {
-    CRM_Core_Error::deprecatedWarning('CRM_Extension_Manager_Search is abandoned. {$info->key} must be deactivated or switched to type="module". Support for this type of extension will be dropped by 6.26.');
     $customSearchesByName = $this->getCustomSearchesByName();
     if (array_key_exists($info->key, $customSearchesByName)) {
       throw new CRM_Core_Exception(ts('This custom search is already registered.'));
@@ -94,7 +96,6 @@ class CRM_Extension_Manager_Search extends CRM_Extension_Manager_Base {
    * @param CRM_Extension_Info $info
    */
   public function onPreEnable(CRM_Extension_Info $info) {
-    CRM_Core_Error::deprecatedWarning('CRM_Extension_Manager_Search is abandoned. {$info->key} must be deactivated or switched to type="module". Support for this type of extension will be dropped by 6.26.');
     $customSearchesByName = $this->getCustomSearchesByName();
     $cs = $this->getCustomSearchesById();
     $id = $cs[$customSearchesByName[$info->key]];

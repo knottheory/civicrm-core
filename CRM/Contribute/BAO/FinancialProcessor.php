@@ -10,7 +10,6 @@
  */
 
 use Civi\Api4\EntityFinancialTrxn;
-use Civi\Api4\FinancialItem;
 use Civi\Api4\PaymentProcessor;
 
 /**
@@ -728,35 +727,30 @@ class CRM_Contribute_BAO_FinancialProcessor {
       // This is an update so original currency if none passed in.
       $params['trxnParams']['currency'] = $params['currency'] ?? $params['prevContribution']->currency;
 
-      $financialTrxnIDs[] = $this->recordAlwaysAccountsReceivable($params['trxnParams'], $params);
+      $transactionIDs[] = $this->recordAlwaysAccountsReceivable($params['trxnParams'], $params);
       $trxn = CRM_Core_BAO_FinancialTrxn::create($params['trxnParams']);
       // @todo we should stop passing $params by reference - splitting this out would be a step towards that.
-      $params['entity_id'] = $financialTrxnIDs[] = $trxn->id;
+      $params['entity_id'] = $transactionIDs[] = $trxn->id;
 
-      $entityFinancialTrxnRecord = [
+      $sql = "SELECT id, amount FROM civicrm_financial_item WHERE entity_id = %1 and entity_table = 'civicrm_line_item'";
+
+      $entityParams = [
         'entity_table' => 'civicrm_financial_item',
       ];
       foreach ($params['line_item'] as $fieldId => $fields) {
         foreach ($fields as $fieldValueId => $lineItemDetails) {
           $this->updateFinancialItemForLineItemToPaid($lineItemDetails['id']);
-          $financialItems = FinancialItem::get(FALSE)
-            ->addSelect('id', 'amount')
-            ->addWhere('entity_id', '=', $lineItemDetails['id'])
-            ->addWhere('entity_table', '=', 'civicrm_line_item')
-            ->execute();
-          if ($financialItems->count() > 0) {
-            $entityFinancialTrxnRecordsToCreate = [];
-            foreach ($financialItems as $financialItem) {
-              $entityFinancialTrxnRecord['entity_id'] = $financialItem['id'];
-              $entityFinancialTrxnRecord['amount'] = $financialItem['amount'];
-              foreach ($financialTrxnIDs as $financialTrxnID) {
-                $entityFinancialTrxnRecord['financial_trxn_id'] = $financialTrxnID;
-                $entityFinancialTrxnRecordsToCreate[] = $entityFinancialTrxnRecord;
-              }
+          $fparams = [
+            1 => [$lineItemDetails['id'], 'Integer'],
+          ];
+          $financialItem = CRM_Core_DAO::executeQuery($sql, $fparams);
+          while ($financialItem->fetch()) {
+            $entityParams['entity_id'] = $financialItem->id;
+            $entityParams['amount'] = $financialItem->amount;
+            foreach ($transactionIDs as $tID) {
+              $entityParams['financial_trxn_id'] = $tID;
+              CRM_Financial_BAO_FinancialItem::createEntityTrxn($entityParams);
             }
-            EntityFinancialTrxn::save(FALSE)
-              ->setRecords($entityFinancialTrxnRecordsToCreate)
-              ->execute();
           }
         }
       }

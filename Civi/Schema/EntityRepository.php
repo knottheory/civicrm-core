@@ -90,11 +90,6 @@ class EntityRepository {
     $entityTypes = [];
     $path = dirname(__DIR__, 2) . '/schema/*/*.entityType.php';
     $files = (array) glob($path);
-    // awkwardly on some systems (docker on mac) globs can be unreliable
-    // trying again can help with volume caching
-    if (!$files) {
-      $files = (array) glob($path);
-    }
     foreach ($files as $file) {
       if (isset($cache[$file])) {
         $entity = $cache[$file];

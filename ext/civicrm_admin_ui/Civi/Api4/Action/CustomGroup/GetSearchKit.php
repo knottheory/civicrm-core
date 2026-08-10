@@ -13,11 +13,11 @@ use CRM_CivicrmAdminUi_ExtensionUtil as E;
  */
 class GetSearchKit extends \Civi\Api4\Generic\BasicBatchAction {
 
-  protected function getSelect(): array {
+  protected function getSelect() {
     return ['id', 'name', 'title', 'is_multiple', 'style'];
   }
 
-  protected function doTask($item): array {
+  protected function doTask($item) {
     // searches only apply to multi-record CustomGroups
     if (!$item['is_multiple'] || ($item['style'] !== 'Tab with table')) {
       return [
@@ -58,33 +58,12 @@ class GetSearchKit extends \Civi\Api4\Generic\BasicBatchAction {
     $searchLabel = E::ts('%1 Search', [1 => $group['title']]);
 
     // select all fields by name
-    $select = [];
-    $join = [];
-
-    // TODO: finish https://github.com/civicrm/civicrm-core/pull/34192 and then use
-    // wildcard select to select all fields at runtime
-    foreach ($group['fields'] as $field) {
-      // Join on custom file fields
-      if ($field['data_type'] === 'File') {
-        $alias = $this->getJoinAlias($group, $field);
-        $select[] = "$alias.file_name";
-        $join[] = [
-          "File AS $alias",
-          'LEFT',
-          [$field['name'], '=', "$alias.id"],
-        ];
-      }
-      else {
-        $select[] = $field['name'];
-      }
-    }
-
+    $select = array_column($group['fields'], 'name');
     // add id and entity_id - always useful
     $select[] = 'id';
     $select[] = 'entity_id';
 
     return [
-      'module' => E::LONG_NAME,
       'name' => "SavedSearch_{$searchName}",
       'entity' => 'SavedSearch',
       'cleanup' => 'unused',
@@ -98,7 +77,6 @@ class GetSearchKit extends \Civi\Api4\Generic\BasicBatchAction {
           'api_params' => [
             'version' => 4,
             'select' => $select,
-            'join' => $join,
           ],
         ],
         'match' => ['name'],
@@ -112,9 +90,8 @@ class GetSearchKit extends \Civi\Api4\Generic\BasicBatchAction {
     // most columns are reusable across displays
     $columns = [];
 
-    // TODO: use can we just use default columns now?
     foreach ($group['fields'] as $field) {
-      $columns[] = $this->getColumnForField($group, $field);
+      $columns[] = $this->getColumnForField($field);
     }
     $columns[] = $this->getButtonColumn($group);
 
@@ -123,14 +100,13 @@ class GetSearchKit extends \Civi\Api4\Generic\BasicBatchAction {
     return $searchDisplays;
   }
 
-  protected function getTabSearchDisplay(array $group, array $columns, string $displayType = 'table'): array {
+  protected function getTabSearchDisplay($group, $columns, $displayType = 'table') {
     $searchName = $group['search_name'];
     $displayName = $group['entity_name'] . '_Tab';
     $displayLabel = $group['title'];
     $description = E::ts('Tab display for %1', [1 => $group['title']]);
 
     return [
-      'module' => E::LONG_NAME,
       'name' => "SavedSearch_{$searchName}_SearchDisplay_{$displayName}",
       'entity' => 'SearchDisplay',
       'cleanup' => 'unused',
@@ -145,7 +121,6 @@ class GetSearchKit extends \Civi\Api4\Generic\BasicBatchAction {
           'settings' => [
             'placeholder' => 5,
             'columns' => $columns,
-            'description' => $description,
             'pager' => [
               'show_count' => TRUE,
               'expose_limit' => TRUE,
@@ -181,41 +156,28 @@ class GetSearchKit extends \Civi\Api4\Generic\BasicBatchAction {
     ];
   }
 
-  protected function getColumnForField(array $group, array $field): array {
+  protected function getColumnForField($field) {
+    $key = $field['name'];
+    if ($field['option_group_id']) {
+      $key .= ':label';
+    }
     // TODO: for entity ref columns, we would like to use
     // a display-friendly column from the joined entity
     // but
     // a) we will need to determine the column based on
     //    the entity (e.g. display_name for contact)
     // b) we will need to add it to the SavedSearch as well
-    $column = [
+    return [
       'type' => 'field',
-      'key' => $field['name'],
+      'key' => $key,
       'label' => $field['label'],
       'sortable' => TRUE,
       'break' => TRUE,
     ];
-
-    // Format pseudoconstant values
-    if ($field['option_group_id']) {
-      $column['key'] .= ':label';
-    }
-    // Format custom file fields
-    elseif ($field['data_type'] === 'File') {
-      $alias = $this->getJoinAlias($group, $field);
-      $column['key'] = "$alias.file_name";
-      $column['icons'] = [
-        ['field' => "$alias.icon", 'side' => 'left'],
-      ];
-      $column['link'] = [
-        'path' => "[$alias.url]",
-      ];
-    }
-
-    return $column;
   }
 
-  protected function getButtonColumn(array $group): array {
+  protected function getButtonColumn($group) {
+    $groupName = $group['name'];
     $entityName = $group['entity_name'];
     return [
       'size' => 'btn-xs',
@@ -250,9 +212,16 @@ class GetSearchKit extends \Civi\Api4\Generic\BasicBatchAction {
     ];
   }
 
-  private function getJoinAlias(array $group, array $field): string {
-    $fkEntity = $field['fk_entity'] ?? $field['data_type'];
-    return "{$group['entity_name']}_{$fkEntity}_{$field['name']}_01";
+  public static function getAllManaged() {
+    // for now we only fetch for Groups that have a Tab
+    $all = \Civi\Api4\CustomGroup::getSearchKit(FALSE)
+      ->addWhere('is_active', '=', TRUE)
+      ->addWhere('is_multiple', '=', TRUE)
+      ->addWhere('style', 'IN', ['Tab', 'Tab with table'])
+      ->execute()
+      ->column('managed');
+
+    return array_merge(...$all);
   }
 
 }

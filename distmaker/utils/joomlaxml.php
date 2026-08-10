@@ -65,16 +65,16 @@ function generateJoomlaConfig($version) {
     }
   }
 
-  $perms_array = [];
+  $perms_array = array();
   foreach ($permissions as $perm => $attr) {
     // give an empty string as default description
     $attr[] = '';
 
     //order matters here, but we deal with that later
-    $perms_array[CRM_Utils_String::munge(strtolower($perm))] = [
+    $perms_array[CRM_Utils_String::munge(strtolower($perm))] = array(
       'title' => array_shift($attr),
       'description' => array_shift($attr),
-    ];
+    );
   }
   ksort($perms_array);
 

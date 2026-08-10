@@ -42,17 +42,17 @@ class CRM_Contribute_Page_ContributionRecur extends CRM_Core_Page {
     }
 
     try {
-      $contributionRecur = \Civi\Api4\ContributionRecur::get(FALSE)
-        ->addSelect('*', 'payment_processor_id.title')
-        ->addWhere('id', '=', $this->getEntityId())
-        ->execute()
-        ->first();
+      $contributionRecur = civicrm_api3('ContributionRecur', 'getsingle', [
+        'id' => $this->getEntityId(),
+      ]);
     }
     catch (Exception $e) {
       CRM_Core_Error::statusBounce(ts('Recurring contribution not found (ID: %1)', [1 => $this->getEntityId()]));
     }
 
-    $contributionRecur['payment_processor'] = $contributionRecur['payment_processor_id.title'];
+    $contributionRecur['payment_processor'] = CRM_Financial_BAO_PaymentProcessor::getPaymentProcessorName(
+      $contributionRecur['payment_processor_id'] ?? NULL
+    );
     $idFields = ['contribution_status_id', 'campaign_id', 'financial_type_id'];
     foreach ($idFields as $idField) {
       if (!empty($contributionRecur[$idField])) {

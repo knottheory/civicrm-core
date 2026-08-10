@@ -75,9 +75,9 @@ return [
             [
               'type' => 'field',
               'key' => 'Participant_Event_event_id_01.title',
-              'label' => 'Event',
+              'label' => E::ts('Event'),
               'sortable' => TRUE,
-              'title' => 'View Event',
+              'title' => E::ts('View Event'),
               'link' => [
                 'entity' => 'Event',
                 'action' => 'view',
@@ -88,19 +88,19 @@ return [
             [
               'type' => 'field',
               'key' => 'Participant_Event_event_id_01.start_date',
-              'label' => 'Event Date',
+              'label' => E::ts('Event Date'),
               'sortable' => TRUE,
             ],
             [
               'type' => 'field',
               'key' => 'role_id:label',
-              'label' => 'Role',
+              'label' => E::ts('Role'),
               'sortable' => TRUE,
             ],
             [
               'type' => 'field',
               'key' => 'status_id:label',
-              'label' => 'Status',
+              'label' => E::ts('Status'),
               'sortable' => TRUE,
             ],
           ],

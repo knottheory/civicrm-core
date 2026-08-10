@@ -73,14 +73,12 @@ class CRM_Member_Form_MembershipView extends CRM_Core_Form {
           'url' => 'civicrm/contact/view/membership',
           'qs' => 'action=view&id=%%id%%&cid=%%cid%%&relAction=delete&mid=%%mid%%&reset=1' . $this->addContext(),
           'title' => ts('Cancel Related Membership'),
-          'weight' => CRM_Core_Action::getWeight(CRM_Core_Action::DELETE),
         ],
         CRM_Core_Action::ADD => [
           'name' => ts('Create'),
           'url' => 'civicrm/contact/view/membership',
           'qs' => 'action=view&id=%%id%%&cid=%%cid%%&relAction=create&rid=%%rid%%&reset=1' . $this->addContext(),
           'title' => ts('Create Related Membership'),
-          'weight' => CRM_Core_Action::getWeight(CRM_Core_Action::ADD),
         ],
       ];
     }
@@ -402,11 +400,15 @@ SELECT r.id, c.id as cid, c.display_name as name, c.job_title as comment,
       $values['membership_type'] = CRM_Core_TestEntity::appendTestText($values['membership_type']);
     }
 
-    $this->assign('auto_renew', ($autoRenew && !CRM_Member_BAO_Membership::isSubscriptionCancelled((int) $this->membershipID)) ? 'Yes' : 'No');
+    $subscriptionCancelled = CRM_Member_BAO_Membership::isSubscriptionCancelled((int) $this->membershipID);
+    $values['auto_renew'] = ($autoRenew && !$subscriptionCancelled) ? 'Yes' : 'No';
 
     //do check for campaigns
     $campaignId = $values['campaign_id'] ?? NULL;
-    $this->assign('campaign', $campaignId ? CRM_Campaign_BAO_Campaign::getCampaigns($campaignId)[$campaignId] : NULL);
+    if ($campaignId) {
+      $campaigns = CRM_Campaign_BAO_Campaign::getCampaigns($campaignId);
+      $values['campaign'] = $campaigns[$campaignId];
+    }
 
     $this->assign($values);
   }

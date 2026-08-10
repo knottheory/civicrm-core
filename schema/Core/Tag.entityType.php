@@ -106,7 +106,7 @@ return [
     ],
     'used_for' => [
       'title' => ts('Used For'),
-      'sql_type' => 'varchar(512)',
+      'sql_type' => 'varchar(64)',
       'input_type' => 'Select',
       'add' => '3.2',
       'default' => NULL,

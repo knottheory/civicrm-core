@@ -55,16 +55,10 @@ class CRM_Core_JobManager {
   public $_source = NULL;
 
   /**
-   * @var int
-   */
-  protected $domainId;
-
-  /**
    * @param \Psr\Log\LoggerInterface|null $logger
    */
   public function __construct($logger = NULL) {
     $this->logger = $logger ?: new CRM_Core_JobLogger();
-    $this->domainId = CRM_Core_Config::domainID();
   }
 
   /**
@@ -85,7 +79,6 @@ class CRM_Core_JobManager {
     // Get a list of the jobs that have completed previously
     $successfulJobs = Job::get(FALSE)
       ->addWhere('is_active', '=', TRUE)
-      ->addWhere('domain_id', '=', $this->domainId)
       ->addClause('OR', ['last_run', 'IS NULL'], ['last_run', '<=', 'last_run_end', TRUE])
       ->addOrderBy('name', 'ASC')
       ->execute()
@@ -99,7 +92,6 @@ class CRM_Core_JobManager {
     // If last_run_end is < last_run job has completed successfully in the past but is now failing to complete.
     $maybeUnsuccessfulJobs = Job::get(FALSE)
       ->addWhere('is_active', '=', TRUE)
-      ->addWhere('domain_id', '=', $this->domainId)
       ->addWhere('last_run', 'IS NOT NULL')
       ->addClause('OR', ['last_run_end', 'IS NULL'], ['last_run', '>', 'last_run_end', TRUE])
       ->addOrderBy('name', 'ASC')
@@ -175,9 +167,6 @@ class CRM_Core_JobManager {
     }
 
     CRM_Utils_Hook::preJob($job, $params);
-    if (array_key_exists('runInNonProductionEnvironment', $params)) {
-      $params['runInNonProductionEnvironment'] = (bool) $params['runInNonProductionEnvironment'];
-    }
     try {
       $result = civicrm_api($job->api_entity, $job->api_action, $params);
     }

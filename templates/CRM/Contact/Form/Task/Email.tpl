@@ -17,14 +17,17 @@
 
 <table class="form-layout-compressed">
   <tr id="selectEmailFrom" class="crm-contactEmail-form-block-fromEmailAddress crm-email-element">
-    <td class="label">{$form.from_email_address.label} {help id="from_email_address" file="CRM/Contact/Form/Task/Help/Email/id-from_email.hlp" title=$tokenTitle}</td>
+    <td class="label">{$form.from_email_address.label}</td>
     <td>
-      {$form.from_email_address.html}</td>
+      {$form.from_email_address.html}
+      {help id="from_email_address" file="CRM/Contact/Form/Task/Help/Email/id-from_email.hlp" title=$tokenTitle}
+    </td>
   </tr>
     <tr class="crm-contactEmail-form-block-recipient">
-       <td class="label">{if $single eq false}<label for="to">{ts}Recipient(s){/ts}</label>{else}{$form.to.label}{/if} {help id="to" file="CRM/Contact/Form/Task/Email.hlp"}</td>
+       <td class="label">{if $single eq false}{ts}Recipient(s){/ts}{else}{$form.to.label}{/if}</td>
        <td>
-         {$form.to.html}</td>
+         {$form.to.html} {help id="to" file="CRM/Contact/Form/Task/Email.hlp"}
+       </td>
     </tr>
     <tr class="crm-contactEmail-form-block-cc_id" {if empty($form.cc_id.value)}style="display:none;"{/if}>
       <td class="label">{$form.cc_id.label}</td>
@@ -60,8 +63,7 @@
        <td class="label">{$form.subject.label}</td>
        <td>
          {$form.subject.html|crmAddClass:huge}&nbsp;
-         <label for="subject-tokens" class="sr-only">Subject Tokens</label>
-         <input id="subject-tokens" class="crm-token-selector big" data-field="subject" />
+         <input class="crm-token-selector big" data-field="subject" />
          {help id="id-token-subject" tplFile=$tplFile isAdmin=$isAdmin file="CRM/Contact/Form/Task/Email.hlp" title=$tokenTitle}
        </td>
     </tr>

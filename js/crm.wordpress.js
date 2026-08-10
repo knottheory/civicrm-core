@@ -1,4 +1,4 @@
-// https://civicrm.org/licensing
+// http://civicrm.org/licensing
 CRM.$(function($) {
   $(document)
     .on('crmWysiwygCreate', function(e, type, editor) {
@@ -8,17 +8,14 @@ CRM.$(function($) {
         });
       }
     });
-  // Prevent screen reader shortcuts from changing the document hash and breaking angular routes.
+  // Prevent screen reader shortcuts from changing the document hash and breaking angular routes
   $('a.screen-reader-shortcut').click(function() {
     var target = $(this).attr('href');
-    // Show toolbar if hidden.
+    // Show toolbar if hidden
     if (target === '#wp-toolbar' && CRM.menubar.position === 'over-cms-menu') {
       CRM.menubar.togglePosition(false);
     }
-    // The targets are "div" elements so need special handling.
-    $(target).css('outline', 'none !important').attr("tabindex", -1).trigger('focus');
-    // Prevent unwanted jump.
-    $('html').scrollTop(0);
+    $(target).focus();
     return false;
   });
   $('<a href="#crm-qsearch-input" class="screen-reader-shortcut">' + ts("Open CiviCRM Menu") + '</a>')

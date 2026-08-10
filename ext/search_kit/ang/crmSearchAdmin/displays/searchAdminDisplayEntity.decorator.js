@@ -66,7 +66,9 @@
           display._job = apiResults['job_' + display.name];
         }
         // Refresh admin settings to reflect any new/updated entity + joins
-        searchMeta.refreshMetadata();
+        fetch(CRM.url('civicrm/ajax/admin/search'))
+          .then(response => response.json())
+          .then(data => CRM.crmSearchAdmin = data);
       }
     });
     return $delegate;

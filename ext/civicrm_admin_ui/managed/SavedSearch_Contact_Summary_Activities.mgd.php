@@ -126,7 +126,7 @@ return [
             [
               'type' => 'field',
               'key' => 'activity_type_id:label',
-              'label' => 'Type',
+              'label' => ts('Type'),
               'sortable' => TRUE,
               'icons' => [
                 [
@@ -138,27 +138,27 @@ return [
             [
               'type' => 'field',
               'key' => 'subject',
-              'label' => 'Subject',
+              'label' => ts('Subject'),
               'sortable' => TRUE,
               'editable' => TRUE,
             ],
             [
               'type' => 'field',
               'key' => 'activity_date_time',
-              'label' => 'Date',
+              'label' => ts('Date'),
               'sortable' => TRUE,
             ],
             [
               'type' => 'field',
               'key' => 'status_id:label',
-              'label' => 'Status',
+              'label' => ts('Status'),
               'sortable' => TRUE,
               'editable' => TRUE,
             ],
             [
               'type' => 'field',
               'key' => 'GROUP_CONCAT_Activity_ActivityContact_Contact_02_sort_name',
-              'label' => 'Added By',
+              'label' => ts('Added By'),
               'sortable' => TRUE,
               'link' => [
                 'entity' => 'Contact',
@@ -170,7 +170,7 @@ return [
             [
               'type' => 'field',
               'key' => 'GROUP_CONCAT_Activity_ActivityContact_Contact_03_sort_name',
-              'label' => 'With',
+              'label' => ts('With'),
               'sortable' => TRUE,
               'link' => [
                 'entity' => 'Contact',
@@ -182,7 +182,7 @@ return [
             [
               'type' => 'field',
               'key' => 'GROUP_CONCAT_Activity_ActivityContact_Contact_04_sort_name',
-              'label' => 'Assigned',
+              'label' => ts('Assigned'),
               'sortable' => TRUE,
               'link' => [
                 'entity' => 'Contact',
@@ -202,7 +202,7 @@ return [
                   'action' => 'view',
                   'target' => 'crm-popup',
                   'icon' => 'fa-external-link',
-                  'text' => 'View Activity',
+                  'text' => ts('View Activity'),
                   'style' => 'default',
                 ],
                 [
@@ -210,7 +210,7 @@ return [
                   'action' => 'update',
                   'target' => 'crm-popup',
                   'icon' => 'fa-pencil',
-                  'text' => 'Update Activity',
+                  'text' => ts('Update Activity'),
                   'style' => 'default',
                 ],
                 [
@@ -218,7 +218,7 @@ return [
                   'action' => 'delete',
                   'target' => 'crm-popup',
                   'icon' => 'fa-trash',
-                  'text' => 'Delete Activity',
+                  'text' => ts('Delete Activity'),
                   'style' => 'danger',
                 ],
               ],
@@ -234,7 +234,7 @@ return [
             [
               'action' => 'add',
               'entity' => 'Activity',
-              'text' => 'Add Activity',
+              'text' => ts('Add Activity'),
               'icon' => 'fa-plus',
               'style' => 'primary',
               'target' => 'crm-popup',
